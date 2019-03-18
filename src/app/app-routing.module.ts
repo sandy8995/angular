@@ -4,7 +4,7 @@ import { ProductTrackingComponent } from './product-tracking/product-tracking.co
 
 const routes: Routes = [
   {
-    path:'product_tracking',component:ProductTrackingComponent
+    path:'product_tracking/:id',component:ProductTrackingComponent
   }
 ];
 

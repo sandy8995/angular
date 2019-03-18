@@ -11,7 +11,7 @@ import { Title } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
-
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-tracking',
@@ -19,13 +19,15 @@ import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
   styleUrls: ['./product-tracking.component.css']
 })
 export class ProductTrackingComponent implements OnInit {
-  product$: Observable<any>;
-  users: {};
+  products$: Observable<any>;
+  users$: Observable<any>;
   product: {};
   error: {};
   asinName: string = '';
   asinDelete: string = '';
   searchasin: string = '';
+  filtertext: string = '';
+  userId = '';
   response: {};
   found: boolean = true;
   spin: boolean;
@@ -43,6 +45,7 @@ export class ProductTrackingComponent implements OnInit {
   showerror: boolean;
   showpop: boolean = true;
   count = {};
+
   ServerUrl = 'http://amzblast.moviesdoctor.com/amzblast1/webservices/';
   constructor(
     private route: ActivatedRoute,
@@ -51,14 +54,29 @@ export class ProductTrackingComponent implements OnInit {
     private data: DataService,
     private http: HttpClient,
     private fb: FormBuilder
-  ) { }
+  ) {
+    this.userId = this.route.snapshot.paramMap.get("id");
+  }
 
   ngOnInit() {
+
     this.titleService.setTitle(this.title);
-    this.data.getProducts().subscribe(
-      (data) => this.users = data,
-      error => this.error = error
+    /* this.data.getProducts().subscribe(
+      (data) => {
+      this.users = data;
+      },
+      error => {
+      this.error = error
+      }); */
+
+    this.users$ = this.route.paramMap.pipe(
+      switchMap((params: ParamMap) =>
+        this.data.getProducts(params.get('id'))
+
+      )
+
     );
+
 
 
     setTimeout(function () {
@@ -405,7 +423,7 @@ export class ProductTrackingComponent implements OnInit {
                     this.asinVariationData = data.products[0].size;
                     let variationsImg = data.products[0].imagesCSV;
                     variationsImg = variationsImg.split(",");
-                    this.asinVariations.push({ asin: variations[i], extra: this.asinVariationData,img:variationsImg });
+                    this.asinVariations.push({ asin: variations[i], extra: this.asinVariationData, img: variationsImg });
                   }, error => {
                     this.error = error;
                   });
@@ -414,6 +432,11 @@ export class ProductTrackingComponent implements OnInit {
               this.spin = false;
               $('.asin-child').modal();
             }
+          } else {
+            this.spin = false;
+            this.found = false;
+            this.check = false;
+            this.times = true;
           }
         }, error => {
           this.error = error;
@@ -429,9 +452,10 @@ export class ProductTrackingComponent implements OnInit {
 
   addTracker() {
     $('.asin-child').modal('hide');
+    this.userId = this.route.snapshot.paramMap.get("id");
     this.fa_spin = true;
     if (this.asinName) {
-      this.data.addToTracker(this.asinName)
+      this.data.addToTracker(this.asinName, this.userId)
         .subscribe((data) => {
           this.fa_spin = false;
           if (data.status == 1) {
@@ -471,8 +495,9 @@ export class ProductTrackingComponent implements OnInit {
   }
   confirmAsin() {
     console.log(this.asinDelete);
+    this.userId = this.route.snapshot.paramMap.get("id");
     $('.delete-modals').modal('hide');
-    this.data.delteAsin(this.asinDelete)
+    this.data.delteAsin(this.asinDelete, this.userId)
       .subscribe((data) => {
         if (data.status == 1) {
           this.ngOnInit();

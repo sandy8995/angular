@@ -1,3 +1,21 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-blue">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <!-- <li class="nav-item active">
+          <a routerLink="/" routerLinkActive="active" class="nav-link">Home</a>
+        </li> -->
+        <li class="nav-item">
+          <a [routerLink]="['/product_tracking',userId]" routerLinkActive="active" class="nav-link">Product Tracking</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 <div class="fullw">
   <div class="page-head">
     <div class="row">
@@ -26,7 +44,7 @@
   <div class="main-content container-fluid">
 
     <div class="panel panel-default panel-border-color panel-border-color-primary">
-      <div class="panel-heading" *ngIf="users">
+      <div class="panel-heading" *ngIf="users$ | async as users">
         Total Tracked Products : <span class="align-right trackcount">{{users.data.length}}</span> / 40 </div>
       <div class="panel-body">
         <div class="product-track-form">
@@ -84,7 +102,7 @@
                 <th style="width:12%;"></th>
               </tr>
             </thead>
-            <tbody *ngIf="users">
+            <tbody *ngIf="users$ | async as users">
               <tr
                 *ngFor="let user of users.data | asinFilter:filtertext | paginate: { itemsPerPage: 10, currentPage: p }"
                 class="post-id asinlive-data asinlive-{{ user.asin }}" attr.data-id="{{ user.ID }}"
@@ -135,7 +153,7 @@
               </tr>
             </tbody>
           </table>
-          <div *ngIf="users">
+          <div *ngIf="users$ | async as users">
             <div class="service-error" *ngIf="(users.data | asinFilter:filtertext)?.length==0">
               <h1>No record found</h1>
             </div>
