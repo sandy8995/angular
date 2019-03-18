@@ -1,0 +1,302 @@
+<div class="fullw">
+  <div class="page-head">
+    <div class="row">
+      <div class="col-sm-6">
+        <h2 class="page-head-title">
+          Product Tracking </h2>
+        <div class="breadcrumb_area">
+          <ol class="breadcrumb page-head-nav">
+            <!-- Breadcrumb NavXT 6.2.1 -->
+            <span property="itemListElement" typeof="ListItem"><a property="item" typeof="WebPage"
+                title="Go to AMZ Blast." href="https://www.amzblast.com/dashboard/" class="home"><span
+                  property="name">AMZ Blast</span></a>
+              <meta property="position" content="1"></span> / <li>Product Tracking</li>
+          </ol>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="btn-track-use text-right">
+          <a class="btn btn-space btn-primary" href="https://www.amzblast.com/how-product-tracker-works/"
+            target="_blank">How
+            to use Product Tracker</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main-content container-fluid">
+
+    <div class="panel panel-default panel-border-color panel-border-color-primary">
+      <div class="panel-heading" *ngIf="users">
+        Total Tracked Products : <span class="align-right trackcount">{{users.data.length}}</span> / 40 </div>
+      <div class="panel-body">
+        <div class="product-track-form">
+          <div class="form-horizontal">
+            <div class="row">
+              <div class="col-sm-8">
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">Product ASIN</label>
+                  <div class="col-sm-5 asininbox">
+                    <input type="text" [(ngModel)]="searchasin" #uname="ngModel" [pattern]="'^[a-zA-Z0-9 \'\-]+$'"
+                      (keyup)="uname.errors?.pattern?'':onNameKeyUp($event)" class="form-control input-xs asinintbox"
+                      placeholder="Track a product by ASIN">
+                    <small class="error" *ngIf="uname.errors?.pattern">
+                      Only AlphaNumeric accept
+                    </small>
+                    <i class="fa fa-spin fa-refresh" *ngIf="spin && !uname.errors?.pattern"></i>
+                    <i class="fa fa-check" *ngIf="check"></i>
+                    <i class="fa fa-error fa-times" *ngIf="times"></i>
+                    <div class="" *ngIf="times">
+                      <span class="error">ASIN is not vaild, Please insert valid ASIN</span>
+                    </div>
+                    <div class="submit-response"></div>
+                  </div>
+
+                  <div class="super_button_wrap text-left col-sm-5">
+                    <button type="button" [disabled]="found" (click)="addTracker()"
+                      class="btn btn-space btn-primary btn-track">Add
+                      To Tracker <i class="fa fa-refresh fa-spin" *ngIf="fa_spin"></i></button>
+                    <button type="button" (click)="resetTracking()" class="btn btn-space btn-danger btn-reset">Reset <i
+                        class="fa fa-repeat"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="form-group text-right">
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="filtertext" name="track-search"
+                      class="form-control input-xs setrack" placeholder="Search by Asin">
+                  </div>
+                  <!-- <button type="button" class="btn btn-primary col-md-3 btn-trackse">Search <i class="fa fa-search"></i></button> -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tracked-product">
+        <div class="panel-body noSwipe">
+          <table class="table table-striped table-hover ">
+            <thead>
+              <tr>
+                <th class="proasin-title" style="width:56%;">Product &amp; ASIN</th>
+                <th style="width:12%;">Progress</th>
+                <th style="width:20%;">Last Update</th>
+                <th style="width:12%;"></th>
+              </tr>
+            </thead>
+            <tbody *ngIf="users">
+              <tr
+                *ngFor="let user of users.data | asinFilter:filtertext | paginate: { itemsPerPage: 10, currentPage: p }"
+                class="post-id asinlive-data asinlive-{{ user.asin }}" attr.data-id="{{ user.ID }}"
+                attr.data-asinid="{{ user.asin }}" attr.asin_start_date="{{ user.start_date }}"
+                attr.asin_end_date="{{ user.end_date }}">
+                <td class="user-avatar cell-detail user-info">
+                  <div class="proasin">
+                    <img src="{{ user.imgurl }}" alt="Avatar">
+                    <div class="tooltiptext">
+                      <div class="proasinimage">
+                      </div>
+                    </div>
+                  </div>
+                  <span><span class="asin-title" title="Baybee Wooden Geometric Shape Sorter Puzzle - Multi Color">{{
+                      user.title }}</span></span>
+                  <span class="cell-detail-description">ASIN : <a href="https://www.amazon.in/dp/{{ user.asin }}"
+                      target="_blank">{{ user.asin }}
+                      <i class="fa fa-external-link"></i></a></span>
+                  <span class="stdates">Start : {{ user.start_date | date: 'mediumDate'}}</span>
+                  <span class="endate">End : {{ user.end_date | date: 'mediumDate'}}</span>
+                </td>
+                <td class="cell-detail">
+
+                  <div class="widget widget-tile">
+                    <!--<div id='preloader'><img src = "http://amzblast.moviesdoctor.com/amzblast1/wp-content/themes/amzblast/images/ajax-loader.gif" class='loader_css'></div>-->
+                    <div class="sparkline1">Loading...</div>
+                  </div>
+                </td>
+                <td class="cell-detail lastup">
+                  <span class="lprank{{ user.asin }}">Rank : N/A</span>
+                  <span class="lpprice">Price : {{ user.price }}</span>
+                  <span class="lppdate{{ user.asin }}">Updated on : N/A</span>
+                  <span class="lpseller{{ user.asin }}">N/A</span>
+                </td>
+                <td class="text-left">
+                  <div class="btn-groups btn-hspace actions">
+                    <input class="totalsale updatetotalsale{{ user.asin }}" type="hidden" value="13">
+                    <input class="totalrank updatetotalrank{{ user.asin }}" type="hidden" value="92996">
+                    <input type="hidden" value="" class="procat">
+                    <button type="button" (click)="openModel()"
+                      class="btn btn-primary btn-grph asin_btn_graph{{ user.asin }}" data-value=""
+                      data-count="">Open</button>
+                    <button type="button" (click)="deleteAsin(user.asin)"
+                      class="btn btn-danger icon del-track md-trigger" title="Delete" data-modal="full-danger"><i
+                        class="mdi mdi-delete"></i> Delete</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="users">
+            <div class="service-error" *ngIf="(users.data | asinFilter:filtertext)?.length==0">
+              <h1>No record found</h1>
+            </div>
+          </div>
+          <pagination-controls (pageChange)="p = $event"></pagination-controls>
+          <div class="service-error" *ngIf="error">
+            <h1>{{error.errorTitle}}</h1>
+            <h3>{{error.errorDesc}}</h3>
+          </div>
+          <div class="pagination pagi-wrapper">
+          </div>
+          <div class="overlay">
+            <div class="loader"><i class="fa fa-spinner fa-spin fa-3x"></i></div>
+          </div>
+        </div>
+      </div>
+      <div aria-labelledby="myLargeModalLabel" aria-hidden="true" id="md-fullWidth" tabindex="-1" role="dialog"
+        class="modal fade bd-example-modal-lg asin-graph colored-header colored-header-primary">
+        <div class="modal-dialog modal-lg full-width">
+          <div class="modal-content">
+            <div class="modal-header">
+              <div class="row">
+                <div class="col-sm-7">
+                  <input type="hidden" class="row-trackingdata" value="" />
+                  <h4 class="tpro-title">Baybee Wooden Geometric Shape Sorter Puzzle - Multi Color</h4>
+                  <div class="asin-func">
+                    <span>ASIN : <span class="tpro-asin" value="">B01JM4CGAQ</span><input type="text" value=""
+                        class="copydata"></span>
+                    <span class="tpro-copy"><i class="fa fa-copy"></i><span class="tooltiptext"
+                        id="urltooltip"></span></span>
+                    <span class="tpro-elink"><a href="#" target="_blank"><i class="fa fa-external-link"></i></a></span>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="text-right">
+                    <button type="button" class="btn btn-default btn-days" data-value="7">7 days</button>
+                    <button type="button" class="btn btn-default btn-days" data-value="14">14 days</button>
+                    <button type="button" class="btn btn-default btn-days" data-value="30">30 days</button>
+                    <button type="button" class="btn btn-default btn-days" data-value="60">60 days</button>
+                  </div>
+                </div>
+                <div class="col-sm-1">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-sm-9">
+                  <div class="track-container" id="chart-container">
+                    <canvas id="producttrack"></canvas>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <div class="tpro-image"></div>
+                  <div class="tpro-cat"></div>
+                  <div class="av-sales">Average Sales : <span></span></div>
+                  <div class="av-rank">Average Rank : <span></span></div>
+                  <div class="tl-sales">Total sales : <span></span></div>
+                  <div class="tl-sales-reviews">Sales per Review : <span><i class="fa fa-refresh fa-spin"></i></span>
+                  </div>
+                  <select class="btn btn-primary exportbtn">
+                    <option>Export</option>
+                    <option value="exinx">Export In Excel</option>
+                    <option value="exinp">Export In JPG.</option>
+                    <option value="exincs">Export In CSV</option>
+                  </select>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Check Asin children product -->
+      <div aria-labelledby="myLargeModalLabel" aria-hidden="true" id="md-fullWidth" tabindex="-1" role="dialog"
+        class="modal fade bd-example-modal-lg asin-child colored-header colored-header-primary">
+        <div class="modal-dialog modal-lg full-width">
+          <div class="modal-content">
+            <div class="modal-header">
+              <div class="row">
+                <div class="col-sm-12">
+                  <h4 class="tpro-title">We found {{count}} connected variants of this asin: {{asinName}}.
+                    Please select related ASINS which you want to Track
+                  </h4>
+                </div>
+              </div>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+
+                <div class="col-sm-12">
+                  <div class="track-container" id="chart-container">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <tbody *ngIf="asinVariations">
+                          <tr *ngFor="let asinrecord of asinVariations">
+                            <td><img src='https://images-na.ssl-images-amazon.com/images/I/{{asinrecord.img}}' height="100px" width="100px"></td>
+                            <td>{{asinrecord.asin}}</td>
+                            <td>{{asinrecord.extra}}</td>
+                            <td><input type="checkbox" (change)="onChange(asinrecord.asin, $event.target.checked)"
+                                name="asinrecord.asin" value="{{asinrecord.asin}}">
+                              Track This</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary" (click)="startTracking()">Start Tracking <i
+                        class="fa fa-refresh fa-spin" *ngIf="tracking"></i></button>
+                    <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                  </div>
+                  <div class="" *ngIf="showerror">
+                    <span class="error">Please select alteast one ASIN</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end -->
+      <!-- Confirm Delete -->
+      <div aria-labelledby="myLargeModalLabel" aria-hidden="true" id="md-fullWidth" tabindex="-1" role="dialog"
+        class="modal fade bd-example-modal-lg delete-modals colored-header colored-header-primary">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <div class="row">
+                <h3>Should We Delete {{asinDelete}} Record? Are You Sure?</h3>
+                <p>Once deleted this product data will be lost and you have to start tracking again from day one.</p>
+              </div>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+
+                <div class="col-sm-12">
+                  <div class="track-container" id="chart-container">
+                    <div class="table-responsive">
+
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <button type="button" data-dismiss="modal" class="btn btn-default btn-space modal-close">Dont
+                      Delete</button>
+                    <button type="button" class="btn btn-success btn-space btn-delete-sure" (click)="confirmAsin()">Yes
+                      Delete Please</button>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--end  -->
+
+    </div>
+  </div>
