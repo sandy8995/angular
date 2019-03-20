@@ -18,19 +18,6 @@ export class DataService {
     );
   }
 
-  /* getMultiProducts(id: string) {
-    return this.http.get<any>(this.ServerUrl + 'product_tracking_id.php?data_asinid=' + id)
-      .pipe(
-        catchError(this.handleError)
-      );
-  } */
-  /* checkProduct(asinName: string) {
-    return this.http.get<any>(this.ServerUrl + 'checkasin.php?casin=' + asinName)
-      .pipe(
-        catchError(this.handleError)
-      );
-  } */
-
  addToTracker(asinName: string, id: string, proimage: string, protitle: string, price: string) {
     return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id + '&proimage=' + proimage+ '&protitle=' + protitle+ '&price=' + price)
       .pipe(
@@ -54,6 +41,12 @@ export class DataService {
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+  getAdditionProducts() {
+    return this.http.get<any>(this.ServerUrl + 'additional_tracking.php').pipe(
+      catchError(this.handleError)
+    );
   }
 
   checkKeepaProduct(asinName: string) {

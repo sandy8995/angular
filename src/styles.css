@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "../node_modules/ng2-slim-loading-bar/style.css";
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,700');
 h1 {font-size: 2.4rem;margin-bottom: 30px;}
 .bg-blue {background-color:#1976d2;}
@@ -40,3 +41,234 @@ h1 {font-size: 2.4rem;margin-bottom: 30px;}
 .error-404 h1{ font-size:10em; }
 .service-error {text-align:center; padding:50px 0;}
 .service-error h1 { font-size: 3em;text-transform: uppercase;color:#007EDA;}
+.navbar-custom {
+    color: #337ab7;
+    background-color: #337ab7;
+}
+.navbar-inverse .navbar-nav>li>a{
+    color: #fff;
+}
+.navbar-inverse{border-color:#337ab7;}
+/*Main Css*/
+
+
+.tpro-image-size {
+    width: 100%;
+    height: 214px;
+    border: 1px solid #aaa;
+    padding: 10px;
+    object-fit: contain;
+}
+
+.loader{
+    display:none;
+}
+.tpro-copy {
+    margin: 0 8px;
+    cursor: pointer;
+    position: relative;
+}
+.asin-func {
+    margin-top: 5px;
+    float: left;
+    width: 100%;
+}
+.tpro-copy .tooltiptext {
+    width: 160px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 2px 0;
+    border-radius: 5px;
+    position: absolute;
+    z-index: 1;
+    top: -3px;
+    left: 22px;
+}
+.tpro-elink a {
+    color: #fff !important;
+}
+.full-width {
+    max-width: 1000px;
+}
+.fullw {
+    float: left;
+    width: 100%;
+}
+.page-head {
+    padding: 20px 25px 0px;
+    position: relative;
+}
+.page-head-title {
+    color: #6b6b6b;
+    display: block;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: -1px;
+    line-height: 22px;
+    margin: 0 0 5px;
+}
+.main-content {
+    padding: 25px;
+}
+.panel-border-color {
+    border-top: 3px solid #4285f4;
+}
+
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f5f5f5;
+}
+
+.tracked-product .proasin {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    float: left;
+    width: 100px;
+    margin-right: 12px;
+    height: 120px;
+    text-align: center;
+}
+.proasin {
+    position: relative;
+}
+.tracked-product .table tbody tr td.user-avatar .proasin img {
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    margin: 0;
+}
+.table tbody tr td.user-info img {
+    float: left;
+}
+img {
+    vertical-align: middle;
+}
+.tracked-product .proasin .tooltiptext {
+    left: 105px;
+    width: 325px;
+    top: 0px;
+}
+.proasin .tooltiptext {
+    visibility: hidden;
+    background-color: #2b6fdb;
+    color: #fff;
+    text-align: center;
+    padding: 5px 5px 0;
+    position: absolute;
+    z-index: 1;
+    font-size: 14px;
+    display: inline-block;
+    left: 40px;
+    border-radius: 3px;
+    font-family: "Roboto",Arial,sans-serif;
+    width: 160px;
+    top: -11px;
+}
+.tracked-product .proasin .proasinimage {
+    height: 200px;
+}
+.proasin .proasinimage {
+    width: 100%;
+    display: inline-block;
+    height: 88px;
+    background-color: #fff;
+}
+.tracked-product .table tbody tr td.user-avatar .proasin .proasinimage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.tracked-product .table tbody tr td.user-avatar .proasin img {
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    margin: 0;
+}
+.table tbody tr td.user-info img {
+    float: left;
+}
+.table tbody tr td.user-info span {
+    padding-left: 40px;
+}
+.table tbody tr td.cell-detail span {
+    display: block;
+}
+.table tbody tr td.user-info span .asin-title {
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    text-align: left;
+    padding: 0;
+}
+.table tbody tr td.cell-detail .cell-detail-description {
+    color: #999999;
+    display: block;
+    font-size: 11px;
+}
+.table tbody tr td.user-info span {
+    padding-left: 40px;
+}
+.table tbody tr td.user-info span {
+    padding-left: 40px;
+}
+.table tbody tr td.cell-detail span {
+    display: block;
+}
+.tracked-product .stdates {
+    margin-top: 7px;
+}
+.table tbody tr td.user-info span {
+    padding-left: 40px;
+}
+.table tbody tr td.cell-detail span {
+    display: block;
+}
+/*CSS For Graph Popup*/
+.copydata {
+    width: 0px;
+    border: none;
+}
+.colored-header-primary .modal-content .modal-header {
+    background-color: #5f99f5;
+}
+.colored-header .modal-content .modal-header {
+    /* background-color: #e6e6e6; */
+    color: #ffffff;
+    padding: 30px 20px;
+}
+.btn-default {
+    background-color: #fff;
+    border-color: #dedede;
+    color: #404040;
+}
+.error{
+    color:red;
+}
+.asininbox .fa {
+    position: absolute;
+    top: 9px;
+    right: 25px;
+}
+.tracked-product .btn-grph {
+    width: 110px;
+    margin-bottom: 8px;
+}
+.btn-space {
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+.tracked-product .del-track {
+    width: 110px;
+}
+.mdi {
+    display: inline-block;
+    font: normal normal normal 14px/1 'Material Icons';
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 declare var $: any;
 declare var window: any;
 declare let Chart: any;
-declare var alertify: any;
-// import * as $ from 'jQuery';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { DataService } from '../data.service';
@@ -14,45 +12,11 @@ import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-product-tracking',
-  templateUrl: './product-tracking.component.html',
-  styleUrls: ['./product-tracking.component.css']
+  selector: 'app-bonus-tracker',
+  templateUrl: './bonus-tracker.component.html',
+  styleUrls: ['./bonus-tracker.component.css']
 })
-export class ProductTrackingComponent implements OnInit {
-  products$: Observable<any>;
-  users$: Observable<any>;
-  product: {};
-  error: {};
-  asinName: string = '';
-  asinDelete: string = '';
-  searchasin: string = '';
-  filtertext: string = '';
-  userId = '';
-  response: {};
-  found: boolean = true;
-  spin: boolean;
-  fa_spin: boolean = false;
-  tracking: boolean = false;
-  check: boolean;
-  times: boolean;
-  title = 'Product Tracking';
-  p: number = 1;
-  asinData = {};
-  asinVariationData = {};
-  myForm: FormGroup;
-  emailFormArray = [];
-  asinVariations = [];
-  showerror: boolean;
-  showpop: boolean = true;
-  count = {};
-  proimage: string = '';
-  protitle: string = '';
-  price: string = '';
-  proimagepop: string = '';
-  protitlepop: string = '';
-  pricepop: string = '';
-  asinpop: string = '';
-  ServerUrl = 'http://amzblast.moviesdoctor.com/amzblast1/webservices/';
+export class BonusTrackerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -60,38 +24,25 @@ export class ProductTrackingComponent implements OnInit {
     private data: DataService,
     private http: HttpClient,
     private fb: FormBuilder
-  ) {
-    this.userId = this.route.snapshot.paramMap.get("id");
-  }
-
+  ) { }
+  ServerUrl = 'http://amzblast.moviesdoctor.com/amzblast1/webservices/';
+  filtertext: string = '';
+  users$: Observable<any>;
   ngOnInit() {
-
-    this.titleService.setTitle(this.title);
-    /* this.data.getProducts().subscribe(
-      (data) => {
-      this.users = data;
-      },
-      error => {
-      this.error = error
-      }); */
-
     this.users$ = this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
-        this.data.getProducts(params.get('id'))
-
+        this.data.getAdditionProducts()
       )
-
     );
-
-
-
     setTimeout(function () {
       $(document).ready(function () {
         $('.tracked-product .table tr').each(function () {
           var data_asinid = $(this).attr('data-asinid');
           var start_date = $(this).attr('asin_start_date');
           var end_date = $(this).attr('asin_end_date');
+          
           if (data_asinid != '' && typeof data_asinid != 'undefined') {
+            console.log(data_asinid+'-'+start_date+'-'+end_date);
             $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
               var data = $.parseJSON(responsedata);
               console.log(data);
@@ -111,6 +62,7 @@ export class ProductTrackingComponent implements OnInit {
               var data_arr = [];
               if (data.data) {
                 for (var i = 0; i < data.data.length; i++) {
+                  
                   $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
                   $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
                   $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
@@ -165,12 +117,6 @@ export class ProductTrackingComponent implements OnInit {
         }
       });
     }, 2000);
-
-    /* this.http.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php?data_asinid=" + data_array).subscribe(
-      (responsedata) => {
-        
-      }
-    ); */
   }
   openModel() {
 
@@ -392,206 +338,4 @@ export class ProductTrackingComponent implements OnInit {
       });
     }
   }
-
-  onNameKeyUp(event: any) {
-
-    this.asinName = event.target.value.trim();
-    console.log(this.asinName);
-    this.asinVariations = [];
-    if (this.asinName) {
-      this.found = true;
-      this.spin = true;
-      this.times = false;
-      this.check = false;
-      this.data.checkKeepaProduct(this.asinName)
-        .subscribe((data) => {
-          this.asinData = data;
-          let variationsImgs = data.products[0].imagesCSV;
-          variationsImgs = variationsImgs.split(",");
-          this.proimage = variationsImgs[0];
-          this.protitle = data.products[0].title;
-          this.price = data.products[0].fbaFees;
-          console.log(data);
-          if (data.products) {
-            if (data.products[0].productType == 4) {
-              this.found = true;
-              this.spin = false;
-              this.times = true;
-              this.check = false;
-              $('.asin-child').modal('hide');
-            } else if (data.products[0].variationCSV == null) {
-              this.check = true;
-              this.found = false;
-              this.spin = false;
-              $('.asin-child').modal('hide');
-            } else if (data.products[0].variationCSV != null) {
-              let variations = data.products[0].variationCSV;
-              variations = variations.split(",");
-              console.log(variations);
-              this.count = variations.length;
-              for (let i = 0; i < variations.length; i++) {
-                this.data.checkKeepaProduct(variations[i])
-                  .subscribe((data) => {
-                    this.asinVariationData = data.products[0].size;
-                    let variationsImg = data.products[0].imagesCSV;
-                    variationsImg = variationsImg.split(",");
-                    this.asinVariations.push({ asin: variations[i], extra: this.asinVariationData, img: variationsImg });
-                  }, error => {
-                    this.error = error;
-                  });
-              }
-              console.log(this.asinVariations);
-              this.spin = false;
-              $('.asin-child').modal();
-            }
-          } else {
-            this.spin = false;
-            this.found = true;
-            this.check = false;
-            this.times = true;
-            this.fa_spin = false;
-          }
-        }, error => {
-          this.error = error;
-        });
-    } else {
-      this.spin = false;
-      this.found = true;
-      this.check = false;
-      this.times = false;
-      this.fa_spin = false;
-    }
-
-  }
-
-  addTracker() {
-    $('.asin-child').modal('hide');
-    this.userId = this.route.snapshot.paramMap.get("id");
-    this.fa_spin = true;
-    if (this.asinName) {
-      this.data.addToTracker(this.asinName, this.userId, this.proimage, this.protitle, this.price)
-        //this.data.addToTracker(this.asinName, this.userId)
-        .subscribe((data) => {
-          this.fa_spin = false;
-          if (data.status == 1) {
-            this.ngOnInit();
-            this.resetTracking();
-            alertify.alert("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
-            alertify.success("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
-          } else if (data.status == 2) {
-            alertify.alert("As per available membership package you are already tracking '" + this.asinName + "' products. To track further product kindly delete one product from tracking list");
-            return false;
-          } else if (data.status == 3) {
-            alertify.alert("As per available PRT package you cant track any products now.");
-            return false;
-          } else {
-            alertify.alert("Already tracking this asin please add another.");
-            return false;
-          }
-
-          console.log(data);
-        }, error => {
-          this.error = error;
-        });
-    } else {
-      this.times = true;
-      this.fa_spin = false;
-    }
-  }
-
-  deleteAsin(deleteAsin: string) {
-    $('.delete-modals').modal();
-    this.asinDelete = deleteAsin;
-  }
-  resetTracking() {
-    this.spin = false;
-    this.found = true;
-    this.check = false;
-    this.times = false;
-    this.searchasin = null;
-  }
-  confirmAsin() {
-    console.log(this.asinDelete);
-    this.userId = this.route.snapshot.paramMap.get("id");
-    $('.delete-modals').modal('hide');
-    this.data.delteAsin(this.asinDelete, this.userId)
-      .subscribe((data) => {
-        if (data.status == 1) {
-          this.ngOnInit();
-          alertify.success(this.asinDelete + " has been deleted..");
-        } else if (data.status == 0) {
-          alertify.alert("Something went wrong.");
-          return false;
-        }
-        console.log(data);
-      }, error => {
-        this.error = error;
-      });
-  }
-
-  onChange(email: string, isChecked: boolean) {
-    if (isChecked) {
-      this.emailFormArray.push(email);
-      this.showerror = false;
-    } else {
-      var index = this.emailFormArray.indexOf(email);
-      if (index !== -1) this.emailFormArray.splice(index, 1);
-    }
-
-  }
-
-  startTracking() {
-    if (this.emailFormArray.length > 0) {
-      console.log(this.emailFormArray);
-      this.tracking = true;
-      this.userId = this.route.snapshot.paramMap.get("id");
-      for (var i = 0; i < this.emailFormArray.length; i++) {
-        console.log(this.emailFormArray[i]);
-        this.data.checkKeepaProduct(this.emailFormArray[i])
-          .subscribe((data) => {
-            let variationsImgs = data.products[0].imagesCSV;
-            variationsImgs = variationsImgs.split(",");
-            this.proimagepop = variationsImgs[0];
-            this.protitlepop = data.products[0].title;
-            this.pricepop = data.products[0].fbaFees;
-            let asin = data.products[0].asin;
-            this.asinpop = asin;
-            this.data.addToTracker(this.asinpop, this.userId, this.proimagepop, this.protitlepop, this.pricepop)
-              .subscribe((data) => {
-                if (data.status == 1) {
-                  this.ngOnInit();
-                  this.resetTracking();
-                  $('.asin-child').modal('hide');
-                  this.tracking = false;
-                  alertify.success("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!  products.");
-                } else if (data.status == 2) {
-                  this.tracking = false;
-                  alertify.alert("As per available membership package you are already tracking products. To track further product kindly delete one product from tracking list");
-                  return false;
-                } else if (data.status == 3) {
-                  this.tracking = false;
-                  alertify.alert("As per available PRT package you cant track any products now.");
-                  return false;
-                } else {
-                  this.tracking = false;
-                  alertify.alert("Already tracking this asin please add another.");
-                  return false;
-                }
-              }, error => {
-                this.error = error;
-              });
-          }, error => {
-            this.error = error;
-          });
-
-
-        //Do something
-      }
-    } else {
-      this.showerror = true;
-    }
-
-
-  }
-
 }

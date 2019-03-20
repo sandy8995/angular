@@ -9,13 +9,17 @@ import { ProductTrackingComponent } from './product-tracking/product-tracking.co
 import { AsinFilterPipe } from './asin-filter.pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
+import { BonusTrackerComponent } from './bonus-tracker/bonus-tracker.component';
+import { HeaderComponent } from './header/header.component';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
     AppComponent,
     ProductTrackingComponent,
-    AsinFilterPipe
+    AsinFilterPipe,
+    BonusTrackerComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
@@ -25,6 +29,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
+    MatToolbarModule,
     HttpClientModule
   ],
   providers: [],
