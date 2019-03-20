@@ -116,7 +116,7 @@
                       </div>
                     </div>
                   </div>
-                  <span><span class="asin-title" title="Baybee Wooden Geometric Shape Sorter Puzzle - Multi Color">{{
+                  <span><span class="asin-title" title="{{user.title }}">{{
                       user.title }}</span></span>
                   <span class="cell-detail-description">ASIN : <a href="https://www.amazon.in/dp/{{ user.asin }}"
                       target="_blank">{{ user.asin }}
@@ -265,9 +265,9 @@
                     </div>
                   </div>
                   <div class="col-sm-12">
-                    <button class="btn btn-primary" (click)="startTracking()">Start Tracking <i
+                    <button class="btn btn-space btn-primary" (click)="startTracking()">Start Tracking <i
                         class="fa fa-refresh fa-spin" *ngIf="tracking"></i></button>
-                    <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-space btn-danger" data-dismiss="modal">Cancel</button>
                   </div>
                   <div class="" *ngIf="showerror">
                     <span class="error">Please select alteast one ASIN</span>

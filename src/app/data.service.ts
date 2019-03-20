@@ -31,14 +31,20 @@ export class DataService {
       );
   } */
 
-  addToTracker(asinName: string,id:string) {
-    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName)
+ addToTracker(asinName: string, id: string, proimage: string, protitle: string, price: string) {
+    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id + '&proimage=' + proimage+ '&protitle=' + protitle+ '&price=' + price)
       .pipe(
         catchError(this.handleError)
       );
   }
-  delteAsin(asinName: string,id:string) {
-    return this.http.get<any>(this.ServerUrl + 'deleteasin.php?deltrackasin=' + asinName+'&user_id='+id)
+  /*addToTracker(asinName: string, id: string) {
+    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }*/
+  delteAsin(asinName: string, id: string) {
+    return this.http.get<any>(this.ServerUrl + 'deleteasin.php?deltrackasin=' + asinName + '&user_id=' + id)
       .pipe(
         catchError(this.handleError)
       );

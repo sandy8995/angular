@@ -45,7 +45,13 @@ export class ProductTrackingComponent implements OnInit {
   showerror: boolean;
   showpop: boolean = true;
   count = {};
-
+  proimage: string = '';
+  protitle: string = '';
+  price: string = '';
+  proimagepop: string = '';
+  protitlepop: string = '';
+  pricepop: string = '';
+  asinpop: string = '';
   ServerUrl = 'http://amzblast.moviesdoctor.com/amzblast1/webservices/';
   constructor(
     private route: ActivatedRoute,
@@ -399,6 +405,11 @@ export class ProductTrackingComponent implements OnInit {
       this.data.checkKeepaProduct(this.asinName)
         .subscribe((data) => {
           this.asinData = data;
+          let variationsImgs = data.products[0].imagesCSV;
+          variationsImgs = variationsImgs.split(",");
+          this.proimage = variationsImgs[0];
+          this.protitle = data.products[0].title;
+          this.price = data.products[0].fbaFees;
           console.log(data);
           if (data.products) {
             if (data.products[0].productType == 4) {
@@ -434,9 +445,10 @@ export class ProductTrackingComponent implements OnInit {
             }
           } else {
             this.spin = false;
-            this.found = false;
+            this.found = true;
             this.check = false;
             this.times = true;
+            this.fa_spin = false;
           }
         }, error => {
           this.error = error;
@@ -446,6 +458,7 @@ export class ProductTrackingComponent implements OnInit {
       this.found = true;
       this.check = false;
       this.times = false;
+      this.fa_spin = false;
     }
 
   }
@@ -455,11 +468,13 @@ export class ProductTrackingComponent implements OnInit {
     this.userId = this.route.snapshot.paramMap.get("id");
     this.fa_spin = true;
     if (this.asinName) {
-      this.data.addToTracker(this.asinName, this.userId)
+      this.data.addToTracker(this.asinName, this.userId, this.proimage, this.protitle, this.price)
+        //this.data.addToTracker(this.asinName, this.userId)
         .subscribe((data) => {
           this.fa_spin = false;
           if (data.status == 1) {
             this.ngOnInit();
+            this.resetTracking();
             alertify.alert("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
             alertify.success("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
           } else if (data.status == 2) {
@@ -479,6 +494,7 @@ export class ProductTrackingComponent implements OnInit {
         });
     } else {
       this.times = true;
+      this.fa_spin = false;
     }
   }
 
@@ -524,36 +540,50 @@ export class ProductTrackingComponent implements OnInit {
   }
 
   startTracking() {
-    //const formData = new FormData();
     if (this.emailFormArray.length > 0) {
       console.log(this.emailFormArray);
       this.tracking = true;
+      this.userId = this.route.snapshot.paramMap.get("id");
       for (var i = 0; i < this.emailFormArray.length; i++) {
         console.log(this.emailFormArray[i]);
-        this.data.startTracker(this.emailFormArray[i])
+        this.data.checkKeepaProduct(this.emailFormArray[i])
           .subscribe((data) => {
-            if (data.status == 1) {
-              this.ngOnInit();
-              $('.asin-child').modal('hide');
-              this.tracking = false;
-              alertify.success("Hurrayyyy.... Now we have started to track your product '" + this.emailFormArray[i] + "'. Check tomorrow we will surely have some data!  products.");
-            } else if (data.status == 2) {
-              this.tracking = false;
-              alertify.alert("As per available membership package you are already tracking '" + this.asinName + "' products. To track further product kindly delete one product from tracking list");
-              return false;
-            } else if (data.status == 3) {
-              this.tracking = false;
-              alertify.alert("As per available PRT package you cant track any products now.");
-              return false;
-            } else {
-              this.tracking = false;
-              alertify.alert("Already tracking this '" + this.asinName + "' asin please add another.");
-              return false;
-            }
-            console.log(data);
+            let variationsImgs = data.products[0].imagesCSV;
+            variationsImgs = variationsImgs.split(",");
+            this.proimagepop = variationsImgs[0];
+            this.protitlepop = data.products[0].title;
+            this.pricepop = data.products[0].fbaFees;
+            let asin = data.products[0].asin;
+            this.asinpop = asin;
+            this.data.addToTracker(this.asinpop, this.userId, this.proimagepop, this.protitlepop, this.pricepop)
+              .subscribe((data) => {
+                if (data.status == 1) {
+                  this.ngOnInit();
+                  this.resetTracking();
+                  $('.asin-child').modal('hide');
+                  this.tracking = false;
+                  alertify.success("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!  products.");
+                } else if (data.status == 2) {
+                  this.tracking = false;
+                  alertify.alert("As per available membership package you are already tracking products. To track further product kindly delete one product from tracking list");
+                  return false;
+                } else if (data.status == 3) {
+                  this.tracking = false;
+                  alertify.alert("As per available PRT package you cant track any products now.");
+                  return false;
+                } else {
+                  this.tracking = false;
+                  alertify.alert("Already tracking this asin please add another.");
+                  return false;
+                }
+              }, error => {
+                this.error = error;
+              });
           }, error => {
             this.error = error;
           });
+
+
         //Do something
       }
     } else {
