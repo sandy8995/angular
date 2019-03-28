@@ -27,6 +27,7 @@ export class BonusTrackerComponent implements OnInit {
   ) { }
   ServerUrl = 'http://amzblast.moviesdoctor.com/amzblast1/webservices/';
   filtertext: string = '';
+  p: number = 1;
   users$: Observable<any>;
   ngOnInit() {
     this.users$ = this.route.paramMap.pipe(
@@ -35,7 +36,7 @@ export class BonusTrackerComponent implements OnInit {
       )
     );
     setTimeout(function () {
-      $(document).ready(function () {
+      /* $(document).ready(function () { */
         $('.tracked-product .table tr').each(function () {
           var data_asinid = $(this).attr('data-asinid');
           var start_date = $(this).attr('asin_start_date');
@@ -43,7 +44,7 @@ export class BonusTrackerComponent implements OnInit {
           
           if (data_asinid != '' && typeof data_asinid != 'undefined') {
             console.log(data_asinid+'-'+start_date+'-'+end_date);
-            $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
+            $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata: any) {
               var data = $.parseJSON(responsedata);
               console.log(data);
               var month = new Array();
@@ -115,7 +116,7 @@ export class BonusTrackerComponent implements OnInit {
             }
           });
         }
-      });
+      /*});*/
     }, 2000);
   }
   openModel() {

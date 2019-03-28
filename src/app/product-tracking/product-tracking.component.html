@@ -27,8 +27,8 @@
   <div class="main-content container-fluid">
 
     <div class="panel panel-default panel-border-color panel-border-color-primary">
-      <div class="panel-heading" *ngIf="users$ | async as users">
-        Total Tracked Products : <span class="align-right trackcount">{{users.data.length}}</span> / 40 </div>
+      <div class="panel-heading" *ngIf="messages">
+        Total Tracked Products : <span class="align-right trackcount">{{messages.length}}</span> / 40 </div>
       <div class="panel-body">
         <div class="product-track-form">
           <div class="form-horizontal">
@@ -85,9 +85,9 @@
                 <th style="width:12%;"></th>
               </tr>
             </thead>
-            <tbody *ngIf="users$ | async as users">
+            <tbody *ngIf="messages">
               <tr
-                *ngFor="let user of users.data | asinFilter:filtertext | paginate: { itemsPerPage: 10, currentPage: p }"
+                *ngFor="let user of messages | asinFilter:filtertext | paginate: { itemsPerPage: 10, currentPage: p }"
                 class="post-id asinlive-data asinlive-{{ user.asin }}" attr.data-id="{{ user.ID }}"
                 attr.data-asinid="{{ user.asin }}" attr.asin_start_date="{{ user.start_date }}"
                 attr.asin_end_date="{{ user.end_date }}">
@@ -148,9 +148,9 @@
           </div>
           <div class="pagination pagi-wrapper">
           </div>
-          <div class="overlay">
+          <div class="overlay overlay-bg" *ngIf="fordelete"> 
             <div class="loader"><i class="fa fa-spinner fa-spin fa-3x"></i></div>
-          </div>
+        </div>
         </div>
       </div>
       <!-- <div aria-labelledby="myLargeModalLabel" aria-hidden="true" id="md-fullWidth" tabindex="-1" role="dialog"
@@ -237,22 +237,24 @@
                       <table class="table">
                         <tbody *ngIf="asinVariations">
                           <tr *ngFor="let asinrecord of asinVariations">
-                            <td><img src='https://images-na.ssl-images-amazon.com/images/I/{{asinrecord.img}}' height="100px" width="100px"></td>
+                            <td><div class="proasincheckbox"><img src='https://images-na.ssl-images-amazon.com/images/I/{{asinrecord.img}}'></div></td>
                             <td>{{asinrecord.asin}}</td>
+                            <td>{{asinrecord.color}}</td>
                             <td>{{asinrecord.extra}}</td>
-                            <td><input type="checkbox" (change)="onChange(asinrecord.asin, $event.target.checked)"
-                                name="asinrecord.asin" value="{{asinrecord.asin}}">
-                              Track This</td>
+                            <td><label for="id{{asinrecord.asin}}"><input type="checkbox" (change)="onChange(asinrecord.asin, $event.target.checked)"
+                              id="id{{asinrecord.asin}}"  name="asinrecord.asin" value="{{asinrecord.asin}}">
+                              Track This</label></td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-4">
                     <button class="btn btn-space btn-primary" (click)="startTracking()">Start Tracking <i
                         class="fa fa-refresh fa-spin" *ngIf="tracking"></i></button>
                     <button class="btn btn-space btn-danger" data-dismiss="modal">Cancel</button>
                   </div>
+                  <div class="col-sm-8"><p>Select multiple Asin's you wish to track</p></div>
                   <div class="" *ngIf="showerror">
                     <span class="error">Please select alteast one ASIN</span>
                   </div>

@@ -50,6 +50,13 @@ export class DataService {
   }
 
   checkKeepaProduct(asinName: string) {
+    return this.http.get<any>(this.ServerUrl + 'keepa.php?asinval=' + asinName)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  checkKeepaService(asinName: string) {
     return this.http.get<any>(this.keepaUrl + asinName)
       .pipe(
         catchError(this.handleError)

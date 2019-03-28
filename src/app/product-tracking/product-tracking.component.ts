@@ -21,6 +21,7 @@ import { filter } from 'rxjs/operators';
 export class ProductTrackingComponent implements OnInit {
   products$: Observable<any>;
   users$: Observable<any>;
+  messages = [];
   product: {};
   error: {};
   asinName: string = '';
@@ -33,6 +34,7 @@ export class ProductTrackingComponent implements OnInit {
   spin: boolean;
   fa_spin: boolean = false;
   tracking: boolean = false;
+  fordelete: boolean = false;
   check: boolean;
   times: boolean;
   title = 'Product Tracking';
@@ -65,7 +67,6 @@ export class ProductTrackingComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.titleService.setTitle(this.title);
     /* this.data.getProducts().subscribe(
       (data) => {
@@ -74,16 +75,17 @@ export class ProductTrackingComponent implements OnInit {
       error => {
       this.error = error
       }); */
+    this.data.getProducts(this.userId)
+      .subscribe((data) => {
+        this.messages = data;
+        console.log(data);
+      });
 
-    this.users$ = this.route.paramMap.pipe(
-      switchMap((params: ParamMap) =>
-        this.data.getProducts(params.get('id'))
-
-      )
-
-    );
-
-
+    /*  this.messages = this.route.paramMap.pipe(
+     switchMap((params: ParamMap) =>
+       this.data.getProducts(params.get('id'))
+     )
+   ); */
 
     setTimeout(function () {
       $(document).ready(function () {
@@ -94,7 +96,6 @@ export class ProductTrackingComponent implements OnInit {
           if (data_asinid != '' && typeof data_asinid != 'undefined') {
             $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
               var data = $.parseJSON(responsedata);
-              console.log(data);
               var month = new Array();
               month[0] = "Jan";
               month[1] = "Feb";
@@ -173,7 +174,6 @@ export class ProductTrackingComponent implements OnInit {
     ); */
   }
   openModel() {
-
     $('.asin-graph').modal();
     $('.tracked-product').on('click', '.btn-grph', function () {
       $("#urltooltip").hide();
@@ -394,74 +394,79 @@ export class ProductTrackingComponent implements OnInit {
   }
 
   onNameKeyUp(event: any) {
-
-    this.asinName = event.target.value.trim();
-    console.log(this.asinName);
-    this.asinVariations = [];
-    if (this.asinName) {
-      this.found = true;
-      this.spin = true;
-      this.times = false;
-      this.check = false;
-      this.data.checkKeepaProduct(this.asinName)
-        .subscribe((data) => {
-          this.asinData = data;
-          let variationsImgs = data.products[0].imagesCSV;
-          variationsImgs = variationsImgs.split(",");
-          this.proimage = variationsImgs[0];
-          this.protitle = data.products[0].title;
-          this.price = data.products[0].fbaFees;
-          console.log(data);
-          if (data.products) {
-            if (data.products[0].productType == 4) {
-              this.found = true;
-              this.spin = false;
-              this.times = true;
-              this.check = false;
-              $('.asin-child').modal('hide');
-            } else if (data.products[0].variationCSV == null) {
-              this.check = true;
-              this.found = false;
-              this.spin = false;
-              $('.asin-child').modal('hide');
-            } else if (data.products[0].variationCSV != null) {
-              let variations = data.products[0].variationCSV;
-              variations = variations.split(",");
-              console.log(variations);
-              this.count = variations.length;
-              for (let i = 0; i < variations.length; i++) {
-                this.data.checkKeepaProduct(variations[i])
-                  .subscribe((data) => {
-                    this.asinVariationData = data.products[0].size;
-                    let variationsImg = data.products[0].imagesCSV;
-                    variationsImg = variationsImg.split(",");
-                    this.asinVariations.push({ asin: variations[i], extra: this.asinVariationData, img: variationsImg });
-                  }, error => {
-                    this.error = error;
-                  });
+    if (event.code != 'KeyV') {
+      this.asinName = event.target.value.trim();
+      this.asinVariations = [];
+      if (this.asinName) {
+        this.found = true;
+        this.spin = true;
+        this.times = false;
+        this.check = false;
+        this.data.checkKeepaProduct(this.asinName)
+          .subscribe((data) => {
+            this.asinData = data;
+            if (data != null) {
+              let variationsImgs = data.products[0].imagesCSV;
+              variationsImgs = variationsImgs.split(",");
+              this.proimage = variationsImgs[0];
+              this.protitle = data.products[0].title;
+              this.price = data.products[0].newprice;
+              if (data.products) {
+                if (data.products[0].productType == 4) {
+                  this.found = true;
+                  this.spin = false;
+                  this.times = true;
+                  this.check = false;
+                  $('.asin-child').modal('hide');
+                } else if (data.products[0].variationCSV == null) {
+                  this.check = true;
+                  this.found = false;
+                  this.spin = false;
+                  $('.asin-child').modal('hide');
+                } else if (data.products[0].variationCSV != null) {
+                  let variations = data.products[0].variationCSV;
+                  variations = variations.split(",");
+                  this.count = variations.length;
+                  for (let i = 0; i < variations.length; i++) {
+                    this.data.checkKeepaService(variations[i])
+                      .subscribe((data) => {
+                        let asinColor = data.products[0].color;
+                        this.asinVariationData = data.products[0].size;
+                        let variationsImg = data.products[0].imagesCSV;
+                        variationsImg = variationsImg.split(",");
+                        this.asinVariations.push({ asin: variations[i], extra: this.asinVariationData, img: variationsImg, color: asinColor });
+                      }, error => {
+                        this.error = error;
+                      });
+                  }
+                  this.spin = false;
+                  $('.asin-child').modal();
+                }
+              } else {
+                this.spin = false;
+                this.found = true;
+                this.check = false;
+                this.times = true;
+                this.fa_spin = false;
               }
-              console.log(this.asinVariations);
+            } else {
               this.spin = false;
-              $('.asin-child').modal();
+              this.found = true;
+              this.check = false;
+              this.times = true;
+              this.fa_spin = false;
             }
-          } else {
-            this.spin = false;
-            this.found = true;
-            this.check = false;
-            this.times = true;
-            this.fa_spin = false;
-          }
-        }, error => {
-          this.error = error;
-        });
-    } else {
-      this.spin = false;
-      this.found = true;
-      this.check = false;
-      this.times = false;
-      this.fa_spin = false;
+          }, error => {
+            this.error = error;
+          });
+      } else {
+        this.spin = false;
+        this.found = true;
+        this.check = false;
+        this.times = false;
+        this.fa_spin = false;
+      }
     }
-
   }
 
   addTracker() {
@@ -471,25 +476,24 @@ export class ProductTrackingComponent implements OnInit {
     if (this.asinName) {
       this.data.addToTracker(this.asinName, this.userId, this.proimage, this.protitle, this.price)
         //this.data.addToTracker(this.asinName, this.userId)
-        .subscribe((data) => {
+        .subscribe((response) => {
           this.fa_spin = false;
-          if (data.status == 1) {
-            this.ngOnInit();
+          if (response.status == 1) {
+            /* this.ngOnInit(); */
+            this.messages.unshift(response);
             this.resetTracking();
             alertify.alert("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
             alertify.success("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
-          } else if (data.status == 2) {
+          } else if (response.status == 2) {
             alertify.alert("As per available membership package you are already tracking '" + this.asinName + "' products. To track further product kindly delete one product from tracking list");
             return false;
-          } else if (data.status == 3) {
+          } else if (response.status == 3) {
             alertify.alert("As per available PRT package you cant track any products now.");
             return false;
-          } else {
+          } else if (response.status == 0) {
             alertify.alert("Already tracking this asin please add another.");
             return false;
           }
-
-          console.log(data);
         }, error => {
           this.error = error;
         });
@@ -511,20 +515,22 @@ export class ProductTrackingComponent implements OnInit {
     this.searchasin = null;
   }
   confirmAsin() {
-    console.log(this.asinDelete);
+    this.fordelete = true;
     this.userId = this.route.snapshot.paramMap.get("id");
     $('.delete-modals').modal('hide');
     this.data.delteAsin(this.asinDelete, this.userId)
       .subscribe((data) => {
         if (data.status == 1) {
           this.ngOnInit();
+          this.fordelete = false;
           alertify.success(this.asinDelete + " has been deleted..");
         } else if (data.status == 0) {
+          this.fordelete = false;
           alertify.alert("Something went wrong.");
           return false;
         }
-        console.log(data);
       }, error => {
+        this.fordelete = false;
         this.error = error;
       });
   }
@@ -542,18 +548,16 @@ export class ProductTrackingComponent implements OnInit {
 
   startTracking() {
     if (this.emailFormArray.length > 0) {
-      console.log(this.emailFormArray);
       this.tracking = true;
       this.userId = this.route.snapshot.paramMap.get("id");
       for (var i = 0; i < this.emailFormArray.length; i++) {
-        console.log(this.emailFormArray[i]);
         this.data.checkKeepaProduct(this.emailFormArray[i])
           .subscribe((data) => {
             let variationsImgs = data.products[0].imagesCSV;
             variationsImgs = variationsImgs.split(",");
             this.proimagepop = variationsImgs[0];
             this.protitlepop = data.products[0].title;
-            this.pricepop = data.products[0].fbaFees;
+            this.pricepop = data.products[0].newprice;
             let asin = data.products[0].asin;
             this.asinpop = asin;
             this.data.addToTracker(this.asinpop, this.userId, this.proimagepop, this.protitlepop, this.pricepop)

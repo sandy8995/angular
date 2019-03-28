@@ -60,8 +60,12 @@ h1 {font-size: 2.4rem;margin-bottom: 30px;}
     object-fit: contain;
 }
 
-.loader{
-    display:none;
+.loader {
+    display: none;
+    float: left;
+    padding: 10% 0;
+    text-align: center;
+    width: 100%;
 }
 .tpro-copy {
     margin: 0 8px;
@@ -271,4 +275,36 @@ img {
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+.proasincheckbox {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    float: left;
+    width: 100px;
+    margin-right: 12px;
+    height: 120px;
+    text-align: center;
+}
+.proasincheckbox img {
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    -o-object-fit: contain;
+    object-fit: contain;
+    margin: 0;
+}
+.overlay-bg {
+    background-color: rgba(255, 255, 255, 0.8);
+    float: left;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.overlay-bg .loader {
+    display: block;
+}
+.tracked-product .panel-body {
+    position: relative;
 }
