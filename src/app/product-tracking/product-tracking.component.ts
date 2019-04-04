@@ -13,21 +13,33 @@ import { switchMap } from 'rxjs/operators';
 import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 
+
 @Component({
   selector: 'app-product-tracking',
   templateUrl: './product-tracking.component.html',
   styleUrls: ['./product-tracking.component.css']
 })
 export class ProductTrackingComponent implements OnInit {
+  // pager object
+  pager: any = {};
+  changeText: boolean;
+  // paged items
+  pagedItems: any[];
   products$: Observable<any>;
   users$: Observable<any>;
   messages = [];
+  singleasin = [];
   product: {};
   error: {};
   asinName: string = '';
   asinDelete: string = '';
   searchasin: string = '';
   filtertext: string = '';
+  condition: boolean = false;
+  showfiltererror: boolean = false;
+  showallasin: boolean = true;
+  showallsingleasin: boolean = false;
+  showsingleasinerror: boolean = false;
   userId = '';
   response: {};
   found: boolean = true;
@@ -54,6 +66,10 @@ export class ProductTrackingComponent implements OnInit {
   protitlepop: string = '';
   pricepop: string = '';
   asinpop: string = '';
+  preloader: boolean = true;
+  Arr = Array;
+  num: number = 10;
+  resetsearch: boolean = true;
   ServerUrl = 'http://amzblast.moviesdoctor.com/amzblast1/webservices/';
   constructor(
     private route: ActivatedRoute,
@@ -63,10 +79,20 @@ export class ProductTrackingComponent implements OnInit {
     private http: HttpClient,
     private fb: FormBuilder
   ) {
+    this.changeText = false;
     this.userId = this.route.snapshot.paramMap.get("id");
+    localStorage.setItem('dataSource', this.userId);
   }
-
+  largeimage(img: any, asin: any) {
+    $('.showimage' + asin).css('visibility', 'visible');
+  }
+  smallimage(asin: any) {
+    $('.showimage' + asin).css('visibility', 'hidden');
+  }
   ngOnInit() {
+    this.showallasin = true;
+    this.showallsingleasin = false;
+    this.showsingleasinerror = false;
     this.titleService.setTitle(this.title);
     /* this.data.getProducts().subscribe(
       (data) => {
@@ -77,9 +103,94 @@ export class ProductTrackingComponent implements OnInit {
       }); */
     this.data.getProducts(this.userId)
       .subscribe((data) => {
+        this.preloader = false;
         this.messages = data;
-        console.log(data);
+        if (data) {
+          setTimeout(function () {
+            $(document).ready(function () {
+              $('.tracked-product .table tr').each(function () {
+                var data_asinid = $(this).attr('data-asinid');
+                var start_date = $(this).attr('asin_start_date');
+                var end_date = $(this).attr('asin_end_date');
+                if (data_asinid != '' && typeof data_asinid != 'undefined') {
+                  $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
+                    var data = $.parseJSON(responsedata);
+                    var month = new Array();
+                    month[0] = "Jan";
+                    month[1] = "Feb";
+                    month[2] = "Mar";
+                    month[3] = "Apr";
+                    month[4] = "May";
+                    month[5] = "June";
+                    month[6] = "July";
+                    month[7] = "Aug";
+                    month[8] = "Sept";
+                    month[9] = "Oct";
+                    month[10] = "Nov";
+                    month[11] = "Dec";
+                    var data_arr = [];
+                    if (data.data) {
+                      for (var i = 0; i < data.data.length; i++) {
+                        $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
+                        $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
+                        $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
+                        $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
+                        $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
+                        var d = new Date(data.data[i].date);
+                        var month_name = month[d.getMonth()];
+                        var date = d.getDate();
+                        var year = d.getFullYear();
+                        var update_date = month_name + ' ' + date + ', ' + year;
+                        $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
+                        $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
+                        $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
+                      }
+                    }
+                    barchart();
+                  });
+                }
+              });
+              function barchart() {
+                $('.table tr').each(function () {
+                  var trdata = $(this).find('.btn-grph').attr('data-value');
+                  if (trdata) {
+                    trdata = $.parseJSON(trdata);
+                    var sales = new Array();
+                    trdata.reverse();
+                    var trackdata = new Array();
+                    var today = new Date();
+                    var dd = today.getDate();
+                    var mm = today.getMonth() + 1;
+                    var yyyy = today.getFullYear();
+                    if (dd < 10) {
+                      var ddz = "0" + dd;
+                    }
+                    if (mm < 10) {
+                      var mmz = '0' + mm;
+                    }
+                    var todayr = yyyy + '-' + mmz + '-' + ddz;
+                    for (var i = 0; i < 7; i++) {
+                      if (todayr <= trdata[i]) {
+                        trackdata.push(trdata[i]);
+                      }
+                    }
+                    trackdata.reverse();
+                    trdata = trackdata;
+                    for (var i = 0; i < trdata.length; i++) {
+                      sales.push(trdata[i].sales);
+                    }
+                    $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+
+                  } else {
+                    $(this).find('.sparkline1').html("N/A");
+                  }
+                });
+              }
+            });
+          }, 4000);
+        }
       });
+
 
     /*  this.messages = this.route.paramMap.pipe(
      switchMap((params: ParamMap) =>
@@ -87,85 +198,7 @@ export class ProductTrackingComponent implements OnInit {
      )
    ); */
 
-    setTimeout(function () {
-      $(document).ready(function () {
-        $('.tracked-product .table tr').each(function () {
-          var data_asinid = $(this).attr('data-asinid');
-          var start_date = $(this).attr('asin_start_date');
-          var end_date = $(this).attr('asin_end_date');
-          if (data_asinid != '' && typeof data_asinid != 'undefined') {
-            $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
-              var data = $.parseJSON(responsedata);
-              var month = new Array();
-              month[0] = "Jan";
-              month[1] = "Feb";
-              month[2] = "Mar";
-              month[3] = "Apr";
-              month[4] = "May";
-              month[5] = "June";
-              month[6] = "July";
-              month[7] = "Aug";
-              month[8] = "Sept";
-              month[9] = "Oct";
-              month[10] = "Nov";
-              month[11] = "Dec";
-              var data_arr = [];
-              if (data.data) {
-                for (var i = 0; i < data.data.length; i++) {
-                  $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
-                  $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
-                  $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
-                  $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
-                  $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
-                  var d = new Date(data.data[i].date);
-                  var month_name = month[d.getMonth()];
-                  var date = d.getDate();
-                  var year = d.getFullYear();
-                  var update_date = month_name + ' ' + date + ', ' + year;
-                  $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
-                  $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
-                  $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
-                }
-              }
-              barchart();
-            });
-          }
-        });
-        function barchart() {
-          $('.table tr').each(function () {
-            var trdata = $(this).find('.btn-grph').attr('data-value');
-            if (trdata) {
-              trdata = $.parseJSON(trdata);
-              var sales = new Array();
-              trdata.reverse();
-              var trackdata = new Array();
-              var today = new Date();
-              var dd = today.getDate();
-              var mm = today.getMonth() + 1;
-              var yyyy = today.getFullYear();
-              if (dd < 10) {
-                var ddz = "0" + dd;
-              }
-              if (mm < 10) {
-                var mmz = '0' + mm;
-              }
-              var todayr = yyyy + '-' + mmz + '-' + ddz;
-              for (var i = 0; i < 7; i++) {
-                if (todayr <= trdata[i]) {
-                  trackdata.push(trdata[i]);
-                }
-              }
-              trackdata.reverse();
-              trdata = trackdata;
-              for (var i = 0; i < trdata.length; i++) {
-                sales.push(trdata[i].sales);
-              }
-              $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
-            }
-          });
-        }
-      });
-    }, 2000);
+
 
     /* this.http.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php?data_asinid=" + data_array).subscribe(
       (responsedata) => {
@@ -173,6 +206,34 @@ export class ProductTrackingComponent implements OnInit {
       }
     ); */
   }
+  
+  openprint() {
+    var prdata = $('.row-trackingdata').val();
+    var prtitle = $('.tpro-title').text();
+    var prasin = $('.tpro-asin').text();
+    if (prdata) {
+      prdata = $.parseJSON(prdata);
+      var datatablebody = "";
+      var datatablehead = "<tr><th style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>Date</th><th style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>Stock</th><th style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>Sales</th><th style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>Rank</th><th style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>Seller</th></tr>";
+      for (var i = 0; i < prdata.length; i++) {
+        datatablebody += "<tr>";
+        datatablebody += "<td style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>" + prdata[i].date + "</td>";
+        datatablebody += "<td style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>" + prdata[i].stock + "</td>";
+        datatablebody += "<td style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>" + prdata[i].sales + "</td>";
+        datatablebody += "<td style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>" + prdata[i].rank + "</td>";
+        datatablebody += "<td style='border: 1px solid #000; border-collapse: collapse; padding: 15px;'>" + prdata[i].seller + "</td>";
+        datatablebody += "</tr>";
+      }
+      var newWin = window.open('', 'Print-Window');
+      newWin.document.open();
+      newWin.document.write('<html><body onload="window.print()"><h4>' + prtitle + '</h4><span>ASIN : ' + prasin + '</span><br/><br/><table style="border: 1px solid #ccc; border-collapse: collapse;"><thead>' + datatablehead + '</thead><tbody>' + datatablebody + '</tbody></table></body></html>');
+      newWin.document.close();
+      setTimeout(function () {
+        newWin.close();
+      }, 10);
+    }
+  }
+
   openModel() {
     $('.asin-graph').modal();
     $('.tracked-product').on('click', '.btn-grph', function () {
@@ -213,7 +274,7 @@ export class ProductTrackingComponent implements OnInit {
         var avsales = 0;
         var avsale = '0';
         var avrank = '0';
-        $('.track-container').append("<span class='no-pro'>No data available! Please wait for traking data.</span>");
+        $('.track-container').append("<span class='no-pro'><center>No data available! Please wait for traking data.</center></span>");
       }
       $('.asin-graph .tl-sales-reviews span').html("<i class='fa fa-refresh fa-spin'></i>");
       if (proasin != "") {
@@ -393,6 +454,11 @@ export class ProductTrackingComponent implements OnInit {
     }
   }
 
+  resetFilter(){
+    this.filtertext = null;
+    this.resetsearch = true;
+  }
+
   onNameKeyUp(event: any) {
     if (event.code != 'KeyV') {
       this.asinName = event.target.value.trim();
@@ -481,6 +547,7 @@ export class ProductTrackingComponent implements OnInit {
           if (response.status == 1) {
             /* this.ngOnInit(); */
             this.messages.unshift(response);
+            this.ngOnInit();
             this.resetTracking();
             alertify.alert("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
             alertify.success("Hurrayyyy.... Now we have started to track your product. Check tomorrow we will surely have some data!");
@@ -507,6 +574,92 @@ export class ProductTrackingComponent implements OnInit {
     $('.delete-modals').modal();
     this.asinDelete = deleteAsin;
   }
+  checkPage(event) {
+    /* setTimeout(function () {
+      $(document).ready(function () { */
+    $('.tracked-product .table tr').each(function () {
+      var data_asinid = $(this).attr('data-asinid');
+      var start_date = $(this).attr('asin_start_date');
+      var end_date = $(this).attr('asin_end_date');
+      if (data_asinid != '' && typeof data_asinid != 'undefined') {
+        $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
+          var data = $.parseJSON(responsedata);
+          var month = new Array();
+          month[0] = "Jan";
+          month[1] = "Feb";
+          month[2] = "Mar";
+          month[3] = "Apr";
+          month[4] = "May";
+          month[5] = "June";
+          month[6] = "July";
+          month[7] = "Aug";
+          month[8] = "Sept";
+          month[9] = "Oct";
+          month[10] = "Nov";
+          month[11] = "Dec";
+          var data_arr = [];
+          if (data.data) {
+            for (var i = 0; i < data.data.length; i++) {
+              $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
+              $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
+              $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
+              $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
+              $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
+              var d = new Date(data.data[i].date);
+              var month_name = month[d.getMonth()];
+              var date = d.getDate();
+              var year = d.getFullYear();
+              var update_date = month_name + ' ' + date + ', ' + year;
+              $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
+              $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
+              $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
+            }
+          }
+          barchart();
+        });
+      }
+    });
+    function barchart() {
+      $('.table tr').each(function () {
+        var trdata = $(this).find('.btn-grph').attr('data-value');
+        if (trdata) {
+          trdata = $.parseJSON(trdata);
+          var sales = new Array();
+          trdata.reverse();
+          var trackdata = new Array();
+          var today = new Date();
+          var dd = today.getDate();
+          var mm = today.getMonth() + 1;
+          var yyyy = today.getFullYear();
+          if (dd < 10) {
+            var ddz = "0" + dd;
+          }
+          if (mm < 10) {
+            var mmz = '0' + mm;
+          }
+          var todayr = yyyy + '-' + mmz + '-' + ddz;
+          for (var i = 0; i < 7; i++) {
+            if (todayr <= trdata[i]) {
+              trackdata.push(trdata[i]);
+            }
+          }
+          trackdata.reverse();
+          trdata = trackdata;
+          for (var i = 0; i < trdata.length; i++) {
+            sales.push(trdata[i].sales);
+          }
+
+          $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+
+        }
+        else {
+          $(this).find('.sparkline1').html("N/A");
+        }
+      });
+    }
+    //});
+    //}, 2000);
+  }
   resetTracking() {
     this.spin = false;
     this.found = true;
@@ -514,14 +667,216 @@ export class ProductTrackingComponent implements OnInit {
     this.times = false;
     this.searchasin = null;
   }
+  checkfilter(event: any) {
+    
+    if (event.target.value.trim() == '') {
+      this.condition = false;
+      this.showsingleasinerror = false;
+      this.resetsearch = true;
+    } else {
+      this.resetsearch = false;
+    }
+    setTimeout(function () {
+      $(document).ready(function () {
+        $('.tracked-product .table tr').each(function () {
+          var data_asinid = $(this).attr('data-asinid');
+          var start_date = $(this).attr('asin_start_date');
+          var end_date = $(this).attr('asin_end_date');
+          if (data_asinid != '' && typeof data_asinid != 'undefined') {
+            $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
+              var data = $.parseJSON(responsedata);
+              var month = new Array();
+              month[0] = "Jan";
+              month[1] = "Feb";
+              month[2] = "Mar";
+              month[3] = "Apr";
+              month[4] = "May";
+              month[5] = "June";
+              month[6] = "July";
+              month[7] = "Aug";
+              month[8] = "Sept";
+              month[9] = "Oct";
+              month[10] = "Nov";
+              month[11] = "Dec";
+              var data_arr = [];
+              if (data.data) {
+                for (var i = 0; i < data.data.length; i++) {
+                  $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
+                  $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
+                  $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
+                  $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
+                  $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
+                  var d = new Date(data.data[i].date);
+                  var month_name = month[d.getMonth()];
+                  var date = d.getDate();
+                  var year = d.getFullYear();
+                  var update_date = month_name + ' ' + date + ', ' + year;
+                  $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
+                  $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
+                  $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
+                }
+              }
+              barchart();
+            });
+          }
+        });
+        function barchart() {
+          $('.table tr').each(function () {
+            var trdata = $(this).find('.btn-grph').attr('data-value');
+            if (trdata) {
+              trdata = $.parseJSON(trdata);
+              var sales = new Array();
+              trdata.reverse();
+              var trackdata = new Array();
+              var today = new Date();
+              var dd = today.getDate();
+              var mm = today.getMonth() + 1;
+              var yyyy = today.getFullYear();
+              if (dd < 10) {
+                var ddz = "0" + dd;
+              }
+              if (mm < 10) {
+                var mmz = '0' + mm;
+              }
+              var todayr = yyyy + '-' + mmz + '-' + ddz;
+              for (var i = 0; i < 7; i++) {
+                if (todayr <= trdata[i]) {
+                  trackdata.push(trdata[i]);
+                }
+              }
+              trackdata.reverse();
+              trdata = trackdata;
+              for (var i = 0; i < trdata.length; i++) {
+                sales.push(trdata[i].sales);
+              }
+
+              $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+
+            } else {
+              $(this).find('.sparkline1').html("N/A");
+            }
+          });
+        }
+      });
+    }, 4000);
+  }
+  filterasin() {
+    let searchtext = this.filtertext.trim();
+    if (searchtext != '') {
+      this.showsingleasinerror = false;
+      this.condition = true;
+      this.data.searchasin(searchtext, '0', this.userId)
+        .subscribe((data) => {
+          this.singleasin = data;
+          this.showallasin = false;
+          this.condition = false;
+          if (data.status == 0) {
+            this.showallsingleasin = false;
+            this.showsingleasinerror = true;
+          } else {
+            this.showallsingleasin = true;
+            setTimeout(function () {
+              $(document).ready(function () {
+                $('.tracked-product .table tr').each(function () {
+                  var data_asinid = $(this).attr('data-asinid');
+                  var start_date = $(this).attr('asin_start_date');
+                  var end_date = $(this).attr('asin_end_date');
+                  if (data_asinid != '' && typeof data_asinid != 'undefined') {
+                    $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata) {
+                      var data = $.parseJSON(responsedata);
+                      var month = new Array();
+                      month[0] = "Jan";
+                      month[1] = "Feb";
+                      month[2] = "Mar";
+                      month[3] = "Apr";
+                      month[4] = "May";
+                      month[5] = "June";
+                      month[6] = "July";
+                      month[7] = "Aug";
+                      month[8] = "Sept";
+                      month[9] = "Oct";
+                      month[10] = "Nov";
+                      month[11] = "Dec";
+                      var data_arr = [];
+                      if (data.data) {
+                        for (var i = 0; i < data.data.length; i++) {
+                          $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
+                          $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
+                          $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
+                          $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
+                          $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
+                          var d = new Date(data.data[i].date);
+                          var month_name = month[d.getMonth()];
+                          var date = d.getDate();
+                          var year = d.getFullYear();
+                          var update_date = month_name + ' ' + date + ', ' + year;
+                          $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
+                          $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
+                          $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
+                        }
+                      }
+                      barchart();
+                    });
+                  }
+                });
+                function barchart() {
+                  $('.table tr').each(function () {
+                    var trdata = $(this).find('.btn-grph').attr('data-value');
+                    if (trdata) {
+                      trdata = $.parseJSON(trdata);
+                      var sales = new Array();
+                      trdata.reverse();
+                      var trackdata = new Array();
+                      var today = new Date();
+                      var dd = today.getDate();
+                      var mm = today.getMonth() + 1;
+                      var yyyy = today.getFullYear();
+                      if (dd < 10) {
+                        var ddz = "0" + dd;
+                      }
+                      if (mm < 10) {
+                        var mmz = '0' + mm;
+                      }
+                      var todayr = yyyy + '-' + mmz + '-' + ddz;
+                      for (var i = 0; i < 7; i++) {
+                        if (todayr <= trdata[i]) {
+                          trackdata.push(trdata[i]);
+                        }
+                      }
+                      trackdata.reverse();
+                      trdata = trackdata;
+                      for (var i = 0; i < trdata.length; i++) {
+                        sales.push(trdata[i].sales);
+                      }
+
+                      $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+
+                    } else {
+                      $(this).find('.sparkline1').html("N/A");
+                    }
+                  });
+                }
+              });
+            }, 4000);
+          }
+        });
+    } else {
+      this.condition = false;
+    }
+  }
   confirmAsin() {
     this.fordelete = true;
     this.userId = this.route.snapshot.paramMap.get("id");
     $('.delete-modals').modal('hide');
+    for (let i = 0; i < this.messages.length; i++) {
+      if (this.messages[i]['asin'] == this.asinDelete) {
+        this.messages.splice(i, 1);
+      }
+    }
     this.data.delteAsin(this.asinDelete, this.userId)
       .subscribe((data) => {
         if (data.status == 1) {
-          this.ngOnInit();
+          /* this.ngOnInit(); */
           this.fordelete = false;
           alertify.success(this.asinDelete + " has been deleted..");
         } else if (data.status == 0) {
@@ -545,7 +900,9 @@ export class ProductTrackingComponent implements OnInit {
     }
 
   }
-
+  stopTracking() {
+    this.resetTracking();
+  }
   startTracking() {
     if (this.emailFormArray.length > 0) {
       this.tracking = true;

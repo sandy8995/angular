@@ -18,8 +18,14 @@ export class DataService {
     );
   }
 
- addToTracker(asinName: string, id: string, proimage: string, protitle: string, price: string) {
-    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id + '&proimage=' + proimage+ '&protitle=' + protitle+ '&price=' + price)
+  searchasin(asinName: string, adminview: string, user_id: string) {
+    return this.http.get<any>(this.ServerUrl + 'searchasin.php?trckseasin=' + asinName + '&adminview=' + adminview + '&user_id=' + user_id)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+  addToTracker(asinName: string, id: string, proimage: string, protitle: string, price: string) {
+    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id + '&proimage=' + proimage + '&protitle=' + protitle + '&price=' + price)
       .pipe(
         catchError(this.handleError)
       );

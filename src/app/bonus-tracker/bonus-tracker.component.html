@@ -16,7 +16,7 @@
       </div>
       <div class="col-sm-6">
         <div class="btn-track-use text-right">
-          <a class="btn btn-space btn-primary btn-lg" href="https://www.amzblast.com/how-product-tracker-works/"
+          <a class="btn btn-space btn-primary" href="https://www.amzblast.com/how-product-tracker-works/"
             target="_blank">How to use Product Tracker</a>
         </div>
       </div>
@@ -29,18 +29,25 @@
           <div class="form-horizontal">
             <div class="row">
               <div class="col-sm-8">
-                <div class="panel-heading" *ngIf="users$ | async as users">
-                  Total Tracked Products : <span class="align-right trackcount">{{users.data.length}}</span>
+                <div class="panel-heading" *ngIf="messages">
+                  Total Tracked Products : <span class="align-right trackcount">{{messages.data.length}}</span>
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="form-group text-right">
-                  <div class="col-md-8">
-                    <input type="text" [(ngModel)]="filtertext" name="track-search"
+                  <div class="col-md-7">
+                    <input type="text" (keyup)="asinname.errors?.pattern?'':checkfilter($event)"
+                      [(ngModel)]="filtertext" #asinname="ngModel" [pattern]="'^[a-zA-Z0-9 \'\-]+$'" name="track-search"
                       class="form-control input-xs setrack" placeholder="Search by Asin">
+                    <small class="error" *ngIf="asinname.errors?.pattern">
+                      Only AlphaNumeric accept
+                    </small>
+                    <div class="" *ngIf="showfiltererror">
+                      <span class="error">ASIN is not vaild, Please insert valid ASIN</span>
+                    </div>
                   </div>
-                  <!-- <button type="button" class="btn btn-primary col-md-3 btn-trackse">Search <i class="fa fa-search"></i>
-                  </button> -->
+                  <button  [disabled]="resetsearch" type="button" (click)="resetFilter()" class="btn btn-danger col-md-4">Reset Search <i
+                    class="fa fa-repeat"></i></button>
                 </div>
               </div>
             </div>
@@ -61,7 +68,38 @@
       </div>
       <div class="tracked-product">
         <div class="panel-body noSwipe">
-          <table class="table table-striped table-hover ">
+            <table class="table table-striped table-hover" *ngIf="preloader">
+                <thead>
+                  <tr>
+                    <th class="proasin-title" style="width:56%;">Product &amp; ASIN</th>
+                    <th style="width:12%;">Progress</th>
+                    <th style="width:20%;">Last Update</th>
+                    <th style="width:12%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let i of Arr(num).fill(1)">
+                        <td>
+                          <div class="linear-background">
+                            <div class="inter-draw"></div>
+                            <div class="inter-crop"></div>
+                            <div class="inter-right--top"></div>
+                            <div class="inter-right--bottom"></div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="linear-background"></div>
+                        </td>
+                        <td>
+                          <div class="linear-background"></div>
+                        </td>
+                        <td></td>
+                      </tr>
+                 
+    
+                </tbody>
+              </table>
+          <table class="table table-striped table-hover " *ngIf="messages">
             <thead>
               <tr>
                 <th class="proasin-title" style="width:56%;">Product &amp; ASIN</th>
@@ -70,19 +108,21 @@
                 <th style="width:12%;"></th>
               </tr>
             </thead>
-            <tbody *ngIf="users$ | async as users">
-              <tr
-                *ngFor="let user of users.data | asinFilter:filtertext | paginate: { itemsPerPage: 10, currentPage: p }"
+            <tbody>
+             <tr
+                *ngFor="let user of messages.data | asinFilter:filtertext | paginate: { itemsPerPage: 10, currentPage: p }"
                 class="post-id asinlive-data asinlive-{{ user.asin }}" attr.data-id="{{ user.ID }}"
                 attr.data-asinid="{{ user.asin }}" attr.asin_start_date="{{ user.start_date }}"
                 attr.asin_end_date="{{ user.end_date }}">
                 <td class="user-avatar cell-detail user-info">
-                  <div class="proasin">
-                    <img src="{{ user.imgurl }}" alt="Avatar">
-                    <div class="tooltiptext">
-                      <div class="proasinimage"><img src="{{ user.imgurl }}"></div>
-                    </div>
-                  </div>
+                    <div class="proasin" (mouseover)="largeimage(user.imgurl,user.asin)" (mouseout)="smallimage(user.asin)">
+                        <img src="{{ user.imgurl }}" alt="Avatar">
+                        <div class="tooltiptext showimage{{user.asin}}">
+                          <div class="proasinimage">
+                              <img src="{{ user.imgurl }}" alt="Avatar">
+                          </div>
+                        </div>
+                      </div>
                   <span><span class="asin-title" title="{{user.title }}">{{user.title }}</span></span>
                   <span class="cell-detail-description">ASIN : <a href="https://www.amazon.in/dp/{{ user.asin }}"
                       target="_blank">{{ user.asin }} <i class="fa fa-external-link"></i></a></span>
@@ -105,7 +145,7 @@
                     <input class="totalsale updatetotalsale{{ user.asin }}" type="hidden" value="">
                     <input class="totalrank updatetotalrank{{ user.asin }}" type="hidden" value="">
                     <input type="hidden" value="" class="procat">
-                    <button type="button" (click)="openModel()" class="btn btn-primary btn-grph asin_btn_graph{{ user.asin }}" data-value=""
+                    <button type="button" disabled="true" (click)="openModel()" class="btn btn-primary btn-grph asin_btn_graph{{ user.asin }}" data-value=""
                     data-count="">Open</button>
                   </div>
                 </td>
@@ -113,12 +153,12 @@
 
             </tbody>
           </table>
-          <div *ngIf="users$ | async as users">
-            <div class="service-error" *ngIf="(users.data | asinFilter:filtertext)?.length==0">
+          <div *ngIf="messages">
+            <div class="service-error" *ngIf="(messages.data | asinFilter:filtertext)?.length==0">
               <h1>No record found</h1>
             </div>
           </div>
-          <pagination-controls (pageChange)="p = $event"></pagination-controls>
+          <pagination-controls *ngIf="messages" (click)=checkPage($event) (pageChange)="p = $event"></pagination-controls>
         </div>
       </div>
       
@@ -129,7 +169,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-7">
                   <input type="hidden" class="row-trackingdata" value="" />
                   <h4 class="tpro-title"></h4>
                   <div class="asin-func">
@@ -140,7 +180,7 @@
                     <span class="tpro-elink"><a href="#" target="_blank"><i class="fa fa-external-link"></i></a></span>
                   </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-4">
                   <div class="text-right">
                     <button type="button" class="btn btn-space btn-default btn-days" data-value="7">7 days</button>
                     <button type="button" class="btn btn-space btn-default btn-days" data-value="14">14 days</button>
@@ -176,7 +216,7 @@
                     <option value="exinp">Export In JPG.</option>
                     <option value="exincs">Export In CSV</option>
                   </select>
-
+                  <button (click)="openprint()" class="btn btn-success btn-track-print"><i class="fa fa-print" aria-hidden="true"></i> Print</button>
                 </div>
               </div>
             </div>

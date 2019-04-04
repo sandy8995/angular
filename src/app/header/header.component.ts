@@ -6,8 +6,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  userId: string = 'OFg2cHlYOGsxZGt3a1dBLzdZSnJ5UT09';
-  constructor() { }
+  //userId: string = 'OFg2cHlYOGsxZGt3a1dBLzdZSnJ5UT09';
+  local: string;
+  constructor() { 
+    this.local = localStorage.getItem('dataSource');
+  }
 
   ngOnInit() {
   }

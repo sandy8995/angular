@@ -40,7 +40,7 @@ h1 {font-size: 2.4rem;margin-bottom: 30px;}
 .error-404 { text-align: center; }
 .error-404 h1{ font-size:10em; }
 .service-error {text-align:center; padding:50px 0;}
-.service-error h1 { font-size: 3em;text-transform: uppercase;color:#007EDA;}
+.service-error h1 { font-size: 2em;text-transform: uppercase;color:#007EDA;}
 .navbar-custom {
     color: #337ab7;
     background-color: #337ab7;
@@ -93,7 +93,8 @@ h1 {font-size: 2.4rem;margin-bottom: 30px;}
     color: #fff !important;
 }
 .full-width {
-    max-width: 1000px;
+    max-width: none;
+    width: 85%;
 }
 .fullw {
     float: left;
@@ -127,9 +128,9 @@ h1 {font-size: 2.4rem;margin-bottom: 30px;}
     background-color: #fff;
     border: 1px solid #ccc;
     float: left;
-    width: 100px;
+    width: 125px;
     margin-right: 12px;
-    height: 120px;
+    height: 135px;
     text-align: center;
 }
 .proasin {
@@ -171,6 +172,24 @@ img {
 }
 .tracked-product .proasin .proasinimage {
     height: 200px;
+}
+.tracked-product .proasin .tooltiptext::after {
+    border-style: solid;
+    border-color: transparent #2b6fdb transparent transparent;
+    position: absolute;
+    border-width: 5px;
+    content: "";
+    left: -9px;
+    top: 22px;
+}
+.proasin .tooltiptext::after {
+    border-style: solid;
+    border-color: transparent #2b6fdb transparent transparent;
+    position: absolute;
+    border-width: 5px;
+    content: "";
+    left: -9px;
+    top: 22px;
 }
 .proasin .proasinimage {
     width: 100%;
@@ -307,4 +326,165 @@ img {
 }
 .tracked-product .panel-body {
     position: relative;
+}
+/*effects*/
+@keyframes placeHolderShimmer{
+    0%{
+        background-position: -468px 0
+    }
+    100%{
+        background-position: 468px 0
+    }
+}
+
+.linear-background {
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeHolderShimmer;
+    animation-timing-function: linear;
+    background: #f6f7f8;
+    background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    background-size: 1000px 104px;
+    height: 100px;
+    position: relative;
+    overflow: hidden;
+}
+.inter-draw{
+  background: #FFF;
+  width: 100%;
+  height: 100px;
+  position: absolute;
+  top: 100px;
+}
+.inter-right--top{
+  background: #FFF;
+  width: 100%;
+  height: 20px;
+  position: absolute;
+  top: 20px;
+  left: 100px;
+}
+.inter-right--bottom{
+  background: #FFF;
+  width: 100%;
+  height: 50px;
+  position: absolute;
+  top: 60px;
+  left: 100px;
+}
+.inter-crop{
+  background: #FFF;
+  width: 20px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 100px;
+}
+.exportbtn option{font-size: 15px;}
+/*end effect of preloader*/
+.btn-track-print {
+    margin-top: 12px;
+    margin-left: 8px;
+    height: 35px;
+}
+.asin-graph .exportbtn {
+    margin-top: 15px;
+    width: 125px;
+    height: 35px;
+    border: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+/*confirm delete*/
+.modal-confirm {		
+    color: #636363;
+    /*width: 400px;*/
+}
+.modal-confirm .modal-content {
+    padding: 20px;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+    font-size: 14px;
+}
+.modal-confirm .modal-header {
+    border-bottom: none;   
+    position: relative;
+}
+.modal-confirm h4 {
+    text-align: center;
+    font-size: 26px;
+    margin: 30px 0 -10px;
+}
+.modal-confirm .close {
+    position: absolute;
+    top: -5px;
+    right: -2px;
+}
+.modal-confirm .modal-body {
+    color: #fff;
+}
+.modal-confirm .modal-footer {
+    border: none;
+    text-align: center;		
+    border-radius: 5px;
+    font-size: 13px;
+    padding: 10px 15px 25px;
+}
+.modal-confirm .modal-footer a {
+    color: #999;
+}		
+.modal-confirm .icon-box {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    z-index: 9;
+    text-align: center;
+    border: 3px solid #fff;
+}
+.modal-confirm .icon-box i {
+    color: #fff;
+    font-size: 46px;
+    display: inline-block;
+    margin-top: 13px;
+}
+.modal-confirm .btn {
+    color: #fff;
+    border-radius: 4px;
+    background: #60c7c1;
+    text-decoration: none;
+    transition: all 0.4s;
+    line-height: normal;
+    min-width: 120px;
+    border: none;
+    min-height: 40px;
+    border-radius: 3px;
+    margin: 0 5px;
+    outline: none !important;
+}
+.modal-confirm .btn-info {
+    background: #fff;
+    color: #eb6357;
+}
+.modal-confirm .btn-info:hover, .modal-confirm .btn-info:focus {
+    background: #a8a8a8;
+}
+.modal-confirm .btn-danger {
+    background: #f15e5e;
+    border: 2px solid #fff;
+    background-color: transparent;
+}
+.modal-confirm .btn-danger:hover, .modal-confirm .btn-danger:focus {
+    background: #ee3535;
+}
+.delete-modals .modal-confirm .modal-content{
+    background-color: #eb6357;
+    color: #fff;
+}
+/*end confirm*/
+.tpro-image {
+    margin-bottom: 20px;
 }

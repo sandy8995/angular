@@ -32,9 +32,9 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/bootstrap/dist/js/sparkline.js",
-              "node_modules/bootstrap/dist/js/chart.js",
-              "node_modules/bootstrap/dist/js/utils.js",
+              "src/assets/js/sparkline.js",
+              "src/assets/js/chart.js",
+              "src/assets/js/utils.js",
               "node_modules/alertifyjs/build/alertify.min.js",
               "src/assets/js/custom.js"
             ],
