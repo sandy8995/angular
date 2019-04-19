@@ -21,8 +21,8 @@ export class BonusTrackerComponent implements OnInit {
   messages: any[];
   showfiltererror: boolean = false;
   preloader: boolean = true;
-  Arr = Array; 
-  num:number = 10;
+  Arr = Array;
+  num: number = 10;
   showallasin: boolean = true;
   constructor(
     private route: ActivatedRoute,
@@ -31,7 +31,7 @@ export class BonusTrackerComponent implements OnInit {
     private data: DataService,
     private http: HttpClient,
     private fb: FormBuilder
-  ) { 
+  ) {
     this.userId = this.route.snapshot.paramMap.get("id");
     localStorage.setItem('dataSource', this.userId);
   }
@@ -41,101 +41,103 @@ export class BonusTrackerComponent implements OnInit {
   resetsearch: boolean = true;
   users$: Observable<any>;
   largeimage(img: any, asin: any) {
-    $('.showimage'+asin).css('visibility','visible');
+    $('.showimage' + asin).css('visibility', 'visible');
   }
   smallimage(asin: any) {
-    $('.showimage'+asin).css('visibility','hidden');
+    $('.showimage' + asin).css('visibility', 'hidden');
   }
   ngOnInit() {
     this.data.getAdditionProducts()
       .subscribe((data) => {
+        console.log(data);
         this.preloader = false;
         this.messages = data;
-        if(data){
+        if (data) {
           setTimeout(function () {
             /* $(document).ready(function () { */
-              $('.tracked-product .table tr').each(function () {
-                var data_asinid = $(this).attr('data-asinid');
-                var start_date = $(this).attr('asin_start_date');
-                var end_date = $(this).attr('asin_end_date');
-                
-                if (data_asinid != '' && typeof data_asinid != 'undefined') {
-                  $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata: any) {
-                    var data = $.parseJSON(responsedata);
-                    var month = new Array();
-                    month[0] = "Jan";
-                    month[1] = "Feb";
-                    month[2] = "Mar";
-                    month[3] = "Apr";
-                    month[4] = "May";
-                    month[5] = "June";
-                    month[6] = "July";
-                    month[7] = "Aug";
-                    month[8] = "Sept";
-                    month[9] = "Oct";
-                    month[10] = "Nov";
-                    month[11] = "Dec";
-                    var data_arr = [];
-                    if (data.data) {
-                      for (var i = 0; i < data.data.length; i++) {
-                        
-                        $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
-                        $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
-                        $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
-                        $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
-                        $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
-                        var d = new Date(data.data[i].date);
-                        var month_name = month[d.getMonth()];
-                        var date = d.getDate();
-                        var year = d.getFullYear();
-                        var update_date = month_name + ' ' + date + ', ' + year;
-                        $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
-                        $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
-                        $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
-                      }
+            $('.tracked-product .table tr').each(function () {
+              var data_asinid = $(this).attr('data-asinid');
+              var start_date = $(this).attr('asin_start_date');
+              var end_date = $(this).attr('asin_end_date');
+
+              if (data_asinid != '' && typeof data_asinid != 'undefined') {
+                $.get("http://amzblast.moviesdoctor.com/amzblast1/webservices/product_tracking_id.php", { data_asinid: data_asinid, start_date: start_date, end_date: end_date }, function (responsedata: any) {
+                  var data = $.parseJSON(responsedata);
+                  var month = new Array();
+                  month[0] = "Jan";
+                  month[1] = "Feb";
+                  month[2] = "Mar";
+                  month[3] = "Apr";
+                  month[4] = "May";
+                  month[5] = "June";
+                  month[6] = "July";
+                  month[7] = "Aug";
+                  month[8] = "Sept";
+                  month[9] = "Oct";
+                  month[10] = "Nov";
+                  month[11] = "Dec";
+                  var data_arr = [];
+                  if (data.data) {
+                    for (var i = 0; i < data.data.length; i++) {
+
+                      $('.asin_btn_graph' + data.data[i].asin).attr('data-value', JSON.stringify(data.data));
+                      $('.asin_btn_graph' + data.data[i].asin).attr('data-count', JSON.stringify(data.data.length));
+                      $('.asin_btn_graph' + data.data[i].asin).prop("disabled", false);
+                      $('.updatetotalrank' + data.data[i].asin).val(data.data[i].totalrank);
+                      $('.updatetotalsale' + data.data[i].asin).val(data.data[i].totalsale);
+                      var d = new Date(data.data[i].date);
+                      var month_name = month[d.getMonth()];
+                      var date = d.getDate();
+                      var year = d.getFullYear();
+                      var update_date = month_name + ' ' + date + ', ' + year;
+                      $('.lprank' + data.data[i].asin).html("Rank : " + data.data[i].rank);
+                      $('.lppdate' + data.data[i].asin).html("Updated on : " + update_date);
+                      $('.lpseller' + data.data[i].asin).html(data.data[i].seller);
                     }
-                    barchart();
-                  });
-                }
-              });
-              function barchart() {
-                $('.table tr').each(function () {
-                  var trdata = $(this).find('.btn-grph').attr('data-value');
-                  if (trdata) {
-                    trdata = $.parseJSON(trdata);
-                    var sales = new Array();
-                    trdata.reverse();
-                    var trackdata = new Array();
-                    var today = new Date();
-                    var dd = today.getDate();
-                    var mm = today.getMonth() + 1;
-                    var yyyy = today.getFullYear();
-                    if (dd < 10) {
-                      var ddz = "0" + dd;
-                    }
-                    if (mm < 10) {
-                      var mmz = '0' + mm;
-                    }
-                    var todayr = yyyy + '-' + mmz + '-' + ddz;
-                    for (var i = 0; i < 7; i++) {
-                      if (todayr <= trdata[i]) {
-                        trackdata.push(trdata[i]);
-                      }
-                    }
-                    trackdata.reverse();
-                    trdata = trackdata;
-                    for (var i = 0; i < trdata.length; i++) {
-                      sales.push(trdata[i].sales);
-                    }
-                    $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
-      
-                  } else {
-                    $(this).find('.sparkline1').html("N/A");
                   }
+                  barchart();
                 });
               }
+            });
+            function barchart() {
+              $('.tracked-product .table tr').each(function () {
+                var asin = $(this).attr('data-asinid');
+                var trdata = $(this).find('.asin_btn_graph'+asin).attr('data-value');
+                if (trdata) {
+                  trdata = $.parseJSON(trdata);
+                  var sales = new Array();
+                  trdata.reverse();
+                  var trackdata = new Array();
+                  var today = new Date();
+                  var dd = today.getDate();
+                  var mm = today.getMonth() + 1;
+                  var yyyy = today.getFullYear();
+                  if (dd < 10) {
+                    var ddz = "0" + dd;
+                  }
+                  if (mm < 10) {
+                    var mmz = '0' + mm;
+                  }
+                  var todayr = yyyy + '-' + mmz + '-' + ddz;
+                  for (var i = 0; i < 7; i++) {
+                    if (todayr <= trdata[i]) {
+                      trackdata.push(trdata[i]);
+                    }
+                  }
+                  trackdata.reverse();
+                  trdata = trackdata;
+                  for (var i = 0; i < trdata.length; i++) {
+                    sales.push(trdata[i].sales);
+                  }
+                  $(this).find('.sparkline1'+asin).sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+
+                } else {
+                  $(this).find('.sparkline1'+asin).html("N/A");
+                }
+              });
+            }
             /*});*/
-          }, 6000);
+          }, 1000);
         }
       });
     /* this.users$ = this.route.paramMap.pipe(
@@ -143,8 +145,8 @@ export class BonusTrackerComponent implements OnInit {
         this.data.getAdditionProducts()
       )
     ); */
-    
-    
+
+
   }
 
   openprint() {
@@ -178,6 +180,7 @@ export class BonusTrackerComponent implements OnInit {
 
     $('.asin-graph').modal();
     $('.tracked-product').on('click', '.btn-grph', function () {
+      console.log("ok");
       $("#urltooltip").hide();
       $('#producttrack').remove();
       $('.no-pro').remove();
@@ -196,11 +199,41 @@ export class BonusTrackerComponent implements OnInit {
       $('.asin-graph .tpro-image').html("<img style='object-fit: contain;width: 100%;height: 214px;border: 1px solid #aaa;' src='" + proimage + "'/>");
       $('.row-trackingdata').attr('value', trdata);
       if (trdata) {
-        var avsales = parseInt($(this).parent().find('.totalsale').val());
+        /* var avsales = parseInt($(this).parent().find('.totalsale').val());
         var avsale = (avsales / trckcount).toFixed();
         var avranks = parseInt($(this).parent().find('.totalrank').val());
-        var avrank = (avranks / trckcount).toFixed();
+        var avrank = (avranks / trckcount).toFixed(); */
         trdata = $.parseJSON(trdata);
+        trdata.reverse();
+        var trackdata = new Array();
+        var datalength = 14;
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1;
+        var yyyy = today.getFullYear();
+        if (dd < 10) {
+          var ddz = '0' + dd;
+        }
+        if (mm < 10) {
+          var mmm = '0' + mm;
+        }
+        var todayr = yyyy + '-' + mmm + '-' + ddz;
+        var totalsales = 0;
+        var totalrank = 0;
+        for (var i = 0; i < datalength; i++) {
+          let totalsales;
+          let totalrank;
+          if (todayr <= trdata[i]) {
+            totalsales = parseInt(totalsales) + parseInt(trdata[i].sales);
+            totalrank = parseInt(totalrank) + parseInt(trdata[i].rank);
+            trackdata.push(trdata[i]);
+          }
+        }
+        var trackcount = trackdata.length;
+        avsale = (totalsales / trackcount).toFixed();
+        avrank = (totalrank / trackcount).toFixed();
+        trackdata.reverse();
+        trdata = trackdata;
         var dates = new Array(), stocks = new Array(), sales = new Array(), ranks = new Array(), sellers = new Array();
         for (var i = 0; i < trdata.length; i++) {
           dates.push(trdata[i].date);
@@ -394,11 +427,11 @@ export class BonusTrackerComponent implements OnInit {
       });
     }
   }
-  resetFilter(){
+  resetFilter() {
     this.filtertext = null;
     this.resetsearch = true;
   }
-  checkPage(event){
+  checkPage(event) {
     setTimeout(function () {
       $(document).ready(function () {
         $('.tracked-product .table tr').each(function () {
@@ -444,8 +477,9 @@ export class BonusTrackerComponent implements OnInit {
           }
         });
         function barchart() {
-          $('.table tr').each(function () {
-            var trdata = $(this).find('.btn-grph').attr('data-value');
+          $('.tracked-product .table tr').each(function () {
+            var asin = $(this).attr('data-asinid');
+            var trdata = $(this).find('.asin_btn_graph'+asin).attr('data-value');
             if (trdata) {
               trdata = $.parseJSON(trdata);
               var sales = new Array();
@@ -472,22 +506,22 @@ export class BonusTrackerComponent implements OnInit {
               for (var i = 0; i < trdata.length; i++) {
                 sales.push(trdata[i].sales);
               }
-              $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+              $(this).find('.sparkline1'+asin).sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
 
             } else {
-              $(this).find('.sparkline1').html("N/A");
+              $(this).find('.sparkline1'+asin).html("N/A");
             }
           });
         }
       });
-    }, 6000);
+    }, 1000);
   }
   checkfilter(event: any) {
-    
+
     if (event.target.value.trim() == '') {
-      
+
       this.resetsearch = true;
-      
+
     } else {
       this.resetsearch = false;
     }
@@ -536,8 +570,9 @@ export class BonusTrackerComponent implements OnInit {
           }
         });
         function barchart() {
-          $('.table tr').each(function () {
-            var trdata = $(this).find('.btn-grph').attr('data-value');
+          $('.tracked-product .table tr').each(function () {
+            var asin = $(this).attr('data-asinid');
+            var trdata = $(this).find('.asin_btn_graph'+asin).attr('data-value');
             if (trdata) {
               trdata = $.parseJSON(trdata);
               var sales = new Array();
@@ -565,14 +600,14 @@ export class BonusTrackerComponent implements OnInit {
                 sales.push(trdata[i].sales);
               }
 
-              $(this).find('.sparkline1').sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
+              $(this).find('.sparkline1'+asin).sparkline(sales, { type: 'bar', barColor: '#4285f4', height: 50, barSpacing: 3, barWidth: 6 });
 
             } else {
-              $(this).find('.sparkline1').html("N/A");
+              $(this).find('.sparkline1'+asin).html("N/A");
             }
           });
         }
       });
-    }, 6000);
+    }, 2000);
   }
 }

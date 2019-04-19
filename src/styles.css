@@ -484,6 +484,10 @@ img {
     background-color: #eb6357;
     color: #fff;
 }
+.not-found-asin .modal-confirm .modal-content{
+    background-color: #eb6357;
+    color: #fff;
+}
 /*end confirm*/
 .tpro-image {
     margin-bottom: 20px;

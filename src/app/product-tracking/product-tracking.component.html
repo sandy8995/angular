@@ -23,7 +23,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="main-content container-fluid">
     <div class="panel panel-default panel-border-color panel-border-color-primary">
       <div class="panel-heading" *ngIf="messages && showallasin">
@@ -43,6 +43,7 @@
                     <input type="text" [(ngModel)]="searchasin" #uname="ngModel" [pattern]="'^[a-zA-Z0-9 \'\-]+$'"
                       (keyup)="uname.errors?.pattern?'':onNameKeyUp($event)" class="form-control input-xs asinintbox"
                       placeholder="Track a product by ASIN">
+
                     <small class="error" *ngIf="uname.errors?.pattern">
                       Only AlphaNumeric accept
                     </small>
@@ -51,6 +52,11 @@
                     <i class="fa fa-error fa-times" *ngIf="times"></i>
                     <div class="" *ngIf="times">
                       <span class="error">ASIN is not vaild, Please insert valid ASIN</span>
+                    </div>
+                    <div>
+                      <label for="checkvariation"><input type="checkbox"
+                          (change)="checkVariations($event.target.checked)" id="checkvariation" name="" value="">
+                        Check Variations</label>
                     </div>
                     <div class="submit-response"></div>
                   </div>
@@ -77,8 +83,8 @@
                       <span class="error">ASIN is not vaild, Please insert valid ASIN</span>
                     </div>
                   </div>
-                   <button  [disabled]="resetsearch" type="button" (click)="resetFilter()" class="btn btn-danger col-md-4">Reset Search <i
-                    class="fa fa-repeat"></i></button>
+                  <button [disabled]="resetsearch" type="button" (click)="resetFilter()"
+                    class="btn btn-danger col-md-4">Reset Search <i class="fa fa-repeat"></i></button>
                 </div>
               </div>
             </div>
@@ -115,8 +121,8 @@
                 </td>
                 <td *ngIf="preloader"></td>
               </tr>
-              <tr *ngFor="let user of messages | asinFilter:filtertext| paginate: { itemsPerPage: 10, currentPage: p }"
-                class="post-id asinlive-data asinlive-{{ user.asin }}" attr.data-id="{{ user.ID }}"
+              <tr *ngFor="let user of messages | asinFilter:filtertext| paginate: { itemsPerPage: 10, currentPage: p }; let i = index"
+                class="post-id asinlive-data asinlive-{{ user.asin }}" [attr.data-index]="i" attr.data-id="{{ user.ID }}"
                 attr.data-asinid="{{ user.asin }}" attr.asin_start_date="{{ user.start_date }}"
                 attr.asin_end_date="{{ user.end_date }}">
                 <td class="user-avatar cell-detail user-info">
@@ -138,11 +144,11 @@
                   <span class="endate">End : {{ user.end_date | date: 'mediumDate'}}</span>
                 </td>
                 <td class="cell-detail">
-
                   <div class="widget widget-tile">
                     <!--<div id='preloader'><img src = "http://amzblast.moviesdoctor.com/amzblast1/wp-content/themes/amzblast/images/ajax-loader.gif" class='loader_css'></div>-->
-                    <div class="sparkline1">Loading...</div>
+                    <div class="sparkline1{{ user.asin }}">N/A</div>
                   </div>
+
                 </td>
                 <td class="cell-detail lastup">
                   <span class="lprank{{ user.asin }}">Rank : N/A</span>
@@ -165,6 +171,7 @@
                 </td>
               </tr>
             </tbody>
+            <!--Search Click data which is not in use-->
             <tbody *ngIf="singleasin && showallsingleasin">
               <tr class="post-id asinlive-data asinlive-{{ singleasin.asin }}" attr.data-id="{{ singleasin.ID }}"
                 attr.data-asinid="{{ singleasin.asin }}" attr.asin_start_date="{{ singleasin.start_date }}"
@@ -189,7 +196,7 @@
 
                   <div class="widget widget-tile">
                     <!--<div id='preloader'><img src = "http://amzblast.moviesdoctor.com/amzblast1/wp-content/themes/amzblast/images/ajax-loader.gif" class='loader_css'></div>-->
-                    <div class="sparkline1">Loading...</div>
+                    <div class="sparkline1">--</div>
                   </div>
                 </td>
                 <td class="cell-detail lastup">
@@ -213,6 +220,7 @@
                 </td>
               </tr>
             </tbody>
+            <!--end of code which is not in use-->
           </table>
           <div *ngIf="showsingleasinerror">
             <div class="service-error">
@@ -230,7 +238,7 @@
         </div>
         <pagination-controls *ngIf="showallasin" (click)=checkPage($event) (pageChange)="p = $event">
         </pagination-controls>
-        
+
         <div class="service-error" *ngIf="error">
           <h1>{{error.errorTitle}}</h1>
           <h3>{{error.errorDesc}}</h3>
@@ -294,52 +302,75 @@
                   <option value="exinp">Export In JPG.</option>
                   <option value="exincs">Export In CSV</option>
                 </select>
-                <button (click)="openprint()" class="btn btn-success btn-track-print"><i class="fa fa-print" aria-hidden="true"></i> Print</button>
+                <button (click)="openprint()" class="btn btn-success btn-track-print"><i class="fa fa-print"
+                    aria-hidden="true"></i> Print</button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!--Pop for check asin-->
+
+    <div id="myModalasin" class="modal fade not-found-asin" role="dialog">
+      <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="icon-box">
+              <i class="fa fa-times"></i>
+            </div>
+            <h4 class="modal-title">Sorry!! there is no ASIN's Available with this product</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" (click)="dismissPop()" data-dismiss="modal" class="btn btn-info modal-close">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Check Asin children product -->
     <div aria-labelledby="myLargeModalLabel" aria-hidden="true" id="md-fullWidth" tabindex="-1" role="dialog"
       class="modal fade bd-example-modal-lg asin-child colored-header colored-header-primary">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <div class="modal-header">
             <div class="row">
               <div class="col-sm-12">
-                <h4 class="tpro-title">We found {{count}} connected variants of this asin: {{asinName}}.
+                <h4 class="tpro-title">We found {{count}} connected variants of this asin:
+                  {{asinName}}.
                   Please select related ASINS which you want to Track
                 </h4>
+                
               </div>
             </div>
           </div>
           <div class="modal-body">
             <div class="row">
-
               <div class="col-sm-12">
-                
-                  <div class="table-responsive">
-                    <table class="table">
-                      <tbody *ngIf="asinVariations">
-                        <tr *ngFor="let asinrecord of asinVariations">
-                          <td>
-                            <div class="proasincheckbox"><img
-                                src='https://images-na.ssl-images-amazon.com/images/I/{{asinrecord.img}}'></div>
-                          </td>
-                          <td>{{asinrecord.asin}}</td>
-                          <td>{{asinrecord.color}}</td>
-                          <td>{{asinrecord.extra}}</td>
-                          <td><label for="id{{asinrecord.asin}}"><input type="checkbox"
-                                (change)="onChange(asinrecord.asin, $event.target.checked)" id="id{{asinrecord.asin}}"
-                                name="asinrecord.asin" value="{{asinrecord.asin}}">
-                              Track This</label></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                
+                <div class="table-responsive">
+                  <table class="table">
+                    <tbody *ngIf="asinVariations">
+                      <tr *ngFor="let asinrecord of asinVariations">
+                        <td>
+                          <div class="proasincheckbox"><img
+                              src='https://images-na.ssl-images-amazon.com/images/I/{{asinrecord.img}}'></div>
+                        </td>
+                        <td>{{asinrecord.asin}}</td>
+                        <td>{{asinrecord.color}}</td>
+                        <td>{{asinrecord.extra}}</td>
+                        <td><label for="id{{asinrecord.asin}}"><input type="checkbox"
+                              (change)="onChange(asinrecord.asin, $event.target.checked)" id="id{{asinrecord.asin}}"
+                              name="asinrecord.asin" value="{{asinrecord.asin}}">
+                            Track This</label></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
                 <div class="col-sm-4">
                   <button class="btn btn-space btn-primary" (click)="startTracking()">Start Tracking <i
                       class="fa fa-refresh fa-spin" *ngIf="tracking"></i></button>
@@ -352,7 +383,6 @@
                   <span class="error">Please select alteast one ASIN</span>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -361,27 +391,27 @@
     <!-- end -->
     <!-- Confirm Delete -->
     <div id="myModal" class="modal fade delete-modals" role="dialog">
-        <div class="modal-dialog modal-confirm">
-          <div class="modal-content">
-            <div class="modal-header">
-              <div class="icon-box">
-                <i class="fa fa-times"></i>
-              </div>				
-              <h4 class="modal-title">Should We Delete {{asinDelete}} Record? Are You Sure?</h4>	
-                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="icon-box">
+              <i class="fa fa-times"></i>
             </div>
-            <div class="modal-body">
-                <p>Once deleted this product data will be lost and you have to start tracking again from day one.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-info modal-close">Dont
-                    Delete</button>
-                  <button type="button" class="btn btn-danger btn-space btn-delete-sure" (click)="confirmAsin()">Yes
-                    Delete Please</button>
-            </div>
+            <h4 class="modal-title">Should We Delete {{asinDelete}} Record? Are You Sure?</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>Once deleted this product data will be lost and you have to start tracking again from day one.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-info modal-close">Dont
+              Delete</button>
+            <button type="button" class="btn btn-danger btn-space btn-delete-sure" (click)="confirmAsin()">Yes
+              Delete Please</button>
           </div>
         </div>
-      </div> 
+      </div>
+    </div>
     <!-- <div aria-labelledby="myLargeModalLabel" aria-hidden="true" id="md-fullWidth" tabindex="-1" role="dialog"
       class="modal fade bd-example-modal-lg delete-modals colored-header colored-header-primary">
       <div class="modal-dialog">

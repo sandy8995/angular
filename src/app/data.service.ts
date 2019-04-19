@@ -24,8 +24,8 @@ export class DataService {
         catchError(this.handleError)
       );
   }
-  addToTracker(asinName: string, id: string, proimage: string, protitle: string, price: string) {
-    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id + '&proimage=' + proimage + '&protitle=' + protitle + '&price=' + price)
+  addToTracker(asinName: string, id: string, proimage: string, protitle: string, price: string,check:string='') {
+    return this.http.get<any>(this.ServerUrl + 'demo.php?asinval=' + asinName + '&user_id=' + id + '&proimage=' + proimage + '&protitle=' + protitle + '&price=' + price+ '&check=' + check)
       .pipe(
         catchError(this.handleError)
       );
@@ -51,6 +51,12 @@ export class DataService {
 
   getAdditionProducts() {
     return this.http.get<any>(this.ServerUrl + 'additional_tracking.php').pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  checkvariations(asinName: string) {
+    return this.http.get<any>(this.ServerUrl + 'checkasin.php?casin=' + asinName).pipe(
       catchError(this.handleError)
     );
   }
